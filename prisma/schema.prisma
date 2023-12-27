@@ -4,12 +4,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   firebaseId String @unique
 
@@ -32,12 +33,36 @@ model User {
   to   Transaction[] @relation("to")
   from Transaction[] @relation("from")
 
-  manages   Event[] @relation("manager")
-  organizes Event[] @relation("organizer")
+  // manages   Event[] @relation("manager")
+  manages EventManager[]
+
+  // organizes Event[] @relation("organizer")
+  organizes EventOrganiser[]
+}
+
+model EventManager {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  eventId String @db.ObjectId
+  event   Event  @relation(fields: [eventId], references: [id])
+}
+
+model EventOrganiser {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  eventId String @db.ObjectId
+  event   Event  @relation(fields: [eventId], references: [id])
 }
 
 model Team {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   teamName String
 
@@ -47,21 +72,22 @@ model Team {
 
   extraInformation Json[]
 
-  eventId Int
-  event   Event @relation(fields: [eventId], references: [id])
+  eventId String @db.ObjectId
+  event   Event  @relation(fields: [eventId], references: [id])
 }
 
 model TeamRegistration {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   registrationStatus RegistrationStatus
   role               TeamMemberRole
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  teamId Int
-  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String @db.ObjectId
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
 
 enum RegistrationStatus {
@@ -76,7 +102,8 @@ enum TeamMemberRole {
 }
 
 model Module {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name        String
   description String
@@ -90,7 +117,8 @@ model Module {
 }
 
 model Event {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name        String
   posterImage String
@@ -109,15 +137,18 @@ model Event {
   lat   String
   lng   String
 
-  managers   User[] @relation("manager")
-  organizers User[] @relation("organizer")
+  // managers   User[] @relation("manager")
+  managers EventManager[]
+
+  // organizers User[] @relation("organizer")
+  organizers EventOrganiser[]
 
   registrationStartTime DateTime
   registrationEndTime   DateTime
 
   extraQuestions Json[] @default([])
 
-  moduleId Int
+  moduleId String @db.ObjectId
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   teams Team[]
@@ -133,27 +164,29 @@ enum TransactionReason {
 }
 
 model Transaction {
-  id Int @id @default(autoincrement())
+  // id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  fromUserId Int
-  from       User @relation(fields: [fromUserId], references: [id], name: "from", onDelete: Restrict)
+  fromUserId String @db.ObjectId
+  from       User   @relation(fields: [fromUserId], references: [id], name: "from", onDelete: Restrict)
 
-  toUserId Int
-  to       User @relation(fields: [toUserId], references: [id], name: "to", onDelete: Restrict)
+  toUserId String @db.ObjectId
+  to       User   @relation(fields: [toUserId], references: [id], name: "to", onDelete: Restrict)
 
   amount Int
 
   reason      TransactionReason
   description String?
 
-  eventId Int?
-  event   Event? @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  eventId String? @db.ObjectId
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
 }
 
 model Statics {
-  name String @id
+  // name String @id
+  name String @id @map("_id")
   json Json
 }
 
@@ -167,7 +200,8 @@ enum TshirtSize {
 }
 
 model SparkTshirt {
-  id             Int        @id @default(autoincrement())
+  // id             Int        @id @default(autoincrement())
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   email          String     @unique
   scholarId      String?
