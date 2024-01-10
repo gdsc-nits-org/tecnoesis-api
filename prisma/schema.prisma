@@ -9,7 +9,6 @@ datasource db {
 }
 
 model User {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   firebaseId String @unique
@@ -33,10 +32,8 @@ model User {
   to   Transaction[] @relation("to")
   from Transaction[] @relation("from")
 
-  // manages   Event[] @relation("manager")
   manages EventManager[]
 
-  // organizes Event[] @relation("organizer")
   organizes EventOrganiser[]
 }
 
@@ -44,24 +41,23 @@ model EventManager {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   eventId String @db.ObjectId
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model EventOrganiser {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   eventId String @db.ObjectId
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Team {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   teamName String
@@ -77,7 +73,6 @@ model Team {
 }
 
 model TeamRegistration {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   registrationStatus RegistrationStatus
@@ -102,7 +97,6 @@ enum TeamMemberRole {
 }
 
 model Module {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name        String
@@ -117,7 +111,6 @@ model Module {
 }
 
 model Event {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name        String
@@ -137,10 +130,8 @@ model Event {
   lat   String
   lng   String
 
-  // managers   User[] @relation("manager")
   managers EventManager[]
 
-  // organizers User[] @relation("organizer")
   organizers EventOrganiser[]
 
   registrationStartTime DateTime
@@ -164,7 +155,6 @@ enum TransactionReason {
 }
 
 model Transaction {
-  // id Int @id @default(autoincrement())
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   fromUserId String @db.ObjectId
@@ -185,7 +175,6 @@ model Transaction {
 }
 
 model Statics {
-  // name String @id
   name String @id @map("_id")
   json Json
 }
@@ -200,7 +189,6 @@ enum TshirtSize {
 }
 
 model SparkTshirt {
-  // id             Int        @id @default(autoincrement())
   id             String     @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   email          String     @unique
