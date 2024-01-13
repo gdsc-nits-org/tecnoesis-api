@@ -88,15 +88,16 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
     req.body;
 
-  let organizersUsernames;
+  let organizersIds;
   if (organizers) {
-    organizersUsernames = await Utils.Event.extractUsername(organizers);
-    if (!organizersUsernames) return next(Errors.User.userNotFound);
+    console.log("it has organizers");
+    organizersIds = await Utils.Event.extractUsername(organizers);
+    if (!organizersIds) return next(Errors.User.userNotFound);
   }
-  let managersUsernames;
+  let managersIds;
   if (managers) {
-    managersUsernames = await Utils.Event.extractUsername(managers);
-    if (!managersUsernames) return next(Errors.User.userNotFound);
+    managersIds = await Utils.Event.extractUsername(managers);
+    if (!managersIds) return next(Errors.User.userNotFound);
   }
 
   const event = await prisma.event.create({
@@ -119,14 +120,40 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       module: {
         connect: { id: moduleId },
       },
-      organizers: {
-        connect: organizersUsernames,
-      },
-      managers: {
-        connect: managersUsernames,
-      },
     },
   });
+
+  if (organizers) {
+    try {
+      organizers?.map(async (id: any) => {
+        await prisma.eventOrganiser.create({
+          data: {
+            userId: id,
+            eventId: event.id,
+          },
+        });
+      });
+    } catch (e) {
+      await prisma.event.delete({ where: { id: event.id } });
+      return next(Errors.Event.unableToCreate);
+    }
+  }
+
+  if (managers) {
+    try {
+      managers?.map(async (id: any) => {
+        await prisma.eventManager.create({
+          data: {
+            userId: id,
+            eventId: event.id,
+          },
+        });
+      });
+    } catch (e) {
+      await prisma.event.delete({ where: { id: event.id } });
+      return next(Errors.Event.unableToCreate);
+    }
+  }
 
   if (!event) return next(Errors.System.serverError);
   return res.json(Utils.Response.Success(event));
