@@ -88,16 +88,44 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
     req.body;
 
-  let organizersIds;
   if (organizers) {
-    console.log("it has organizers");
-    organizersIds = await Utils.Event.extractUsername(organizers);
-    if (!organizersIds) return next(Errors.User.userNotFound);
+    if (!organizers.every((organizer) => organizer.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const results = await Promise.all(
+      organizers.map(async (organizer) => {
+        const user = await prisma.user.findFirst({ where: { id: organizer } });
+        if (!user) {
+          return false;
+        }
+        return true;
+      })
+    );
+
+    if (!results.every((result) => result)) {
+      return next(Errors.User.userNotFound);
+    }
   }
-  let managersIds;
+
   if (managers) {
-    managersIds = await Utils.Event.extractUsername(managers);
-    if (!managersIds) return next(Errors.User.userNotFound);
+    if (!managers.every((manager) => manager.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const results = await Promise.all(
+      managers.map(async (manager) => {
+        const user = await prisma.user.findFirst({ where: { id: manager } });
+        if (!user) {
+          return false;
+        }
+        return true;
+      })
+    );
+
+    if (!results.every((result) => result)) {
+      return next(Errors.User.userNotFound);
+    }
   }
 
   const event = await prisma.event.create({
