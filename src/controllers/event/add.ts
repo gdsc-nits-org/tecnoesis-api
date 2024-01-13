@@ -46,6 +46,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
+  if (moduleId.length != 24) return next(Errors.Module.invalidInput);
+
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
   }
@@ -56,8 +58,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   ) {
     return next(Errors.Module.invalidInput);
   }
-  if (isNaN(Number.parseInt(moduleId + "")))
-    return next(Errors.Module.invalidInput);
+  if (!String(moduleId + "")) return next(Errors.Module.invalidInput);
   if (
     typeof maxTeamSize !== "number" ||
     typeof minTeamSize !== "number" ||

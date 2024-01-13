@@ -24,20 +24,20 @@ interface UserUpdateBody {
 }
 
 interface getMyTeamsResponseTeamRegistration {
-  id: number;
+  id: string;
   registrationStatus: string;
   role: string;
   team: {
-    id: number;
+    id: string;
     registrationStatus: RegistrationStatus;
     teamName: string;
     extraInformation: Prisma.JsonValue[];
     members: {
-      id: number;
+      id: string;
       registrationStatus: RegistrationStatus;
       role: TeamMemberRole;
       user: {
-        id: number;
+        id: string;
         username: string;
         firstName: string;
         middleName: string;

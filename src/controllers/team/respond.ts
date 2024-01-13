@@ -17,7 +17,7 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   next
 ) => {
   const { teamId: TID } = req.params;
-  const teamId = parseInt(TID);
+  const teamId = String(TID);
 
   const userId = req.user!.id;
 

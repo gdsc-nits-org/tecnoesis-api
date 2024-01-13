@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:aws": "node --experimental-specifier-resolution=node ./dist/server.js",
-    "dev": "pnpm db:update && nodemon --exec ts-node server.ts",
+    "dev": "nodemon --exec ts-node server.ts",
     "build": "tsc && tsc-alias",
     "prepare": "husky install",
     "db:pull": "prisma db pull",
@@ -15,8 +15,7 @@
     "prisma:format": "prisma format",
     "lint": "eslint . --ext .ts --fix",
     "pre-commit": "lint-staged",
-    "preinstall": "npx only-allow pnpm",
-    "postinstall": "pnpm db:update"
+    "preinstall": "npx only-allow pnpm"
   },
   "packageManager": "pnpm@7.9.0",
   "keywords": [],

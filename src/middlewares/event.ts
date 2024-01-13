@@ -5,8 +5,8 @@ import { prisma } from "@utils/prisma";
 
 const isEventValid: Interfaces.Middleware.Async = async (req, _res, next) => {
   const { eventId: EID } = req.params;
-  const eventId = parseInt(EID);
-  if (isNaN(eventId)) {
+  const eventId = String(EID);
+  if (!eventId) {
     return next(Errors.Event.eventDoesntExist);
   }
 

@@ -9,27 +9,35 @@ const getAllEvents: Interfaces.Controller.Async = async (_req, res, next) => {
     include: {
       module: true,
       organizers: {
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          username: true,
-          phoneNumber: true,
-          imageUrl: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              username: true,
+              phoneNumber: true,
+              imageUrl: true,
+            },
+          },
         },
       },
       managers: {
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          username: true,
-          phoneNumber: true,
-          imageUrl: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              username: true,
+              phoneNumber: true,
+              imageUrl: true,
+            },
+          },
         },
       },
     },
@@ -45,8 +53,8 @@ const getEventsByModule: Interfaces.Controller.Async = async (
   next
 ) => {
   const { moduleId: MID } = req.params;
-  const moduleId = Number.parseInt(MID);
-  if (isNaN(moduleId)) return next(Errors.Module.invalidInput);
+  const moduleId = String(MID);
+  if (!moduleId) return next(Errors.Module.invalidInput);
 
   let events = null;
   if (moduleId)
@@ -55,27 +63,35 @@ const getEventsByModule: Interfaces.Controller.Async = async (
       include: {
         module: true,
         organizers: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            middleName: true,
-            lastName: true,
-            username: true,
-            phoneNumber: true,
-            imageUrl: true,
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                middleName: true,
+                lastName: true,
+                username: true,
+                phoneNumber: true,
+                imageUrl: true,
+              },
+            },
           },
         },
         managers: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            middleName: true,
-            lastName: true,
-            username: true,
-            phoneNumber: true,
-            imageUrl: true,
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                middleName: true,
+                lastName: true,
+                username: true,
+                phoneNumber: true,
+                imageUrl: true,
+              },
+            },
           },
         },
       },
@@ -88,36 +104,44 @@ const getEventsByModule: Interfaces.Controller.Async = async (
 
 const getEventById: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
-  const eventId = Number.parseInt(EID);
+  const eventId = String(EID);
 
-  if (isNaN(eventId)) return next(Errors.Module.invalidInput);
+  if (!eventId) return next(Errors.Module.invalidInput);
 
   const event = await prisma.event.findFirst({
     where: { id: eventId },
     include: {
       module: true,
       organizers: {
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          username: true,
-          phoneNumber: true,
-          imageUrl: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              username: true,
+              phoneNumber: true,
+              imageUrl: true,
+            },
+          },
         },
       },
       managers: {
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          username: true,
-          phoneNumber: true,
-          imageUrl: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              username: true,
+              phoneNumber: true,
+              imageUrl: true,
+            },
+          },
         },
       },
     },
