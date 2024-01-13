@@ -2,6 +2,7 @@ import * as Interfaces from "@interfaces";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
 import { prisma } from "@utils/prisma";
+import { EventOrganiser } from "@prisma/client";
 
 const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
@@ -30,8 +31,8 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   if (!results.every((result) => result)) {
     return next(Errors.User.userNotFound);
   } else {
-    let eventOrganisers;
-    const result = await Promise.all(
+    const eventOrganisers: EventOrganiser[] = [];
+    await Promise.all(
       organizers.map(async (id) => {
         const eventOrganizer = await prisma.eventOrganiser.upsert({
           create: {
@@ -43,16 +44,13 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
         });
 
         if (eventOrganizer) {
+          eventOrganisers.push(eventOrganizer);
           return eventOrganizer;
         } else {
           return null;
         }
       })
     );
-
-    result.every((result) => {
-      eventOrganisers?.push(result);
-    });
 
     return res.json(Utils.Response.Success(eventOrganisers));
   }
