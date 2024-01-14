@@ -54,7 +54,8 @@ const getEventsByModule: Interfaces.Controller.Async = async (
 ) => {
   const { moduleId: MID } = req.params;
   const moduleId = String(MID);
-  if (!moduleId) return next(Errors.Module.invalidInput);
+  if (!moduleId || moduleId.length !== 24)
+    return next(Errors.Module.invalidInput);
 
   let events = null;
   if (moduleId)
@@ -106,7 +107,7 @@ const getEventById: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
 
-  if (!eventId) return next(Errors.Module.invalidInput);
+  if (!eventId || eventId.length != 24) return next(Errors.Module.invalidInput);
 
   const event = await prisma.event.findFirst({
     where: { id: eventId },

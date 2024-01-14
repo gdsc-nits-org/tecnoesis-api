@@ -19,6 +19,8 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   const { teamId: TID } = req.params;
   const teamId = String(TID);
 
+  if (!teamId || teamId.length !== 24) return next(Errors.Module.invalidInput);
+
   const userId = req.user!.id;
 
   const { status } = req.body as Interfaces.Team.RegistrationResponse;

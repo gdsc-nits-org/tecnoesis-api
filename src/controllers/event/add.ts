@@ -153,7 +153,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   if (organizers) {
     try {
-      organizers?.map(async (id: any) => {
+      organizers.map(async (id: string) => {
         await prisma.eventOrganiser.create({
           data: {
             userId: id,
@@ -169,7 +169,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   if (managers) {
     try {
-      managers?.map(async (id: any) => {
+      managers.map(async (id: string) => {
         await prisma.eventManager.create({
           data: {
             userId: id,

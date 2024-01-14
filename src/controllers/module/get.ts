@@ -33,7 +33,8 @@ const getAllModules: Interfaces.Controller.Async = async (_req, res, next) => {
 const getModuleById: Interfaces.Controller.Async = async (req, res, next) => {
   const { moduleId: MID } = req.params;
   const moduleId = String(MID);
-  if (!moduleId) return next(Errors.Module.invalidInput);
+  if (!moduleId || moduleId.length !== 24)
+    return next(Errors.Module.invalidInput);
 
   const module = await prisma.module.findFirst({ where: { id: moduleId } });
   if (!module) return next(Errors.Module.moduleNotFound);

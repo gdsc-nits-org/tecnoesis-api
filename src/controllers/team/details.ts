@@ -10,6 +10,8 @@ const getTeamDetails: Interfaces.Controller.Async = async (req, res, next) => {
   const { teamId: TID } = req.params;
   const teamId = String(TID);
 
+  if (!teamId || teamId.length !== 24) return next(Errors.Module.invalidInput);
+
   const team = await prisma.team.findFirst({
     where: {
       id: teamId,
@@ -68,8 +70,8 @@ const getAllTeamsOfEvent: Interfaces.Controller.Async = async (
 
   const eventId = String(EID);
 
-  if (!eventId) {
-    return next(Errors.Event.eventDoesntExist);
+  if (!eventId || eventId.length !== 24) {
+    return next(Errors.Module.invalidInput);
   }
 
   const teams = await prisma.team.findMany({
