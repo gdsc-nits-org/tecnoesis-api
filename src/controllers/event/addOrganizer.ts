@@ -8,7 +8,8 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
 
-  if (!eventId) return next(Errors.Module.invalidInput);
+  if (!eventId || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
 
   const { organizers }: { organizers: [string] } = req.body;
 
@@ -19,7 +20,7 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   }
 
   const results = await Promise.all(
-    organizers.map(async (organizer) => {
+    organizers.map(async (organizer: string) => {
       const user = await prisma.user.findFirst({ where: { id: organizer } });
       if (!user) {
         return false;
@@ -33,7 +34,7 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   } else {
     const eventOrganisers: EventOrganiser[] = [];
     await Promise.all(
-      organizers.map(async (id) => {
+      organizers.map(async (id: string) => {
         const eventOrganizer = await prisma.eventOrganiser.upsert({
           create: {
             user: { connect: { id: id } },
@@ -45,9 +46,6 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
 
         if (eventOrganizer) {
           eventOrganisers.push(eventOrganizer);
-          return eventOrganizer;
-        } else {
-          return null;
         }
       })
     );
