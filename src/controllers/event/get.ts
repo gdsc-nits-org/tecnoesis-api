@@ -107,7 +107,8 @@ const getEventById: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
 
-  if (!eventId || eventId.length != 24) return next(Errors.Module.invalidInput);
+  if (!eventId || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
 
   const event = await prisma.event.findFirst({
     where: { id: eventId },
