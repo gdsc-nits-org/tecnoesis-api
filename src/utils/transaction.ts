@@ -1,6 +1,6 @@
 import { Transaction } from "@prisma/client";
 
-const transactionsResponse = (transactions: Transaction[], userId: number) => {
+const transactionsResponse = (transactions: Transaction[], userId: string) => {
   return transactions.map((transaction) => ({
     ...transaction,
     amount: transaction.amount,

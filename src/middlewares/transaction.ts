@@ -13,13 +13,13 @@ const isUserEventManager: Interfaces.Middleware.Async = async (
   }
   const { eventId } = req.body as Interfaces.Transaction.TransactionBody;
 
-  if (isNaN(parseInt(eventId))) {
+  if (!String(eventId)) {
     return next(Errors.Event.eventDoesntExist);
   }
 
   const isManager = await prisma.event.count({
     where: {
-      id: parseInt(eventId),
+      id: String(eventId),
       managers: {
         some: {
           id: req.user!.id,

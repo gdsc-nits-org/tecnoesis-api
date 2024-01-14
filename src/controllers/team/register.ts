@@ -13,7 +13,11 @@ import * as Utils from "@utils";
 
 const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
-  const eventId = parseInt(EID);
+  const eventId = String(EID);
+
+  if (!eventId || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
+
   const { members: memberArray, extraInformation } =
     req.body as Interfaces.Team.RegisterTeamBody;
 

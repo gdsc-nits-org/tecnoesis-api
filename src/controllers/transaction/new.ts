@@ -22,7 +22,7 @@ const createNewAttendanceTransaction: Interfaces.Controller.Async = async (
     });
 
     const event = await prisma.event.findFirst({
-      where: { id: parseInt(eventId) },
+      where: { id: String(eventId) },
     });
 
     if (!toUser || !event) {

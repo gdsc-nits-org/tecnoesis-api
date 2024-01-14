@@ -9,8 +9,9 @@ const deleteModuleById: Interfaces.Controller.Async = async (
   next
 ) => {
   const { moduleId: MID } = req.params;
-  const moduleId = Number.parseInt(MID);
-  if (isNaN(moduleId)) return next(Errors.Module.invalidInput);
+  const moduleId = String(MID);
+  if (!moduleId || moduleId.length !== 24)
+    return next(Errors.Module.invalidInput);
   if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
     return next(Errors.Module.moduleNotFound);
 

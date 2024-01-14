@@ -5,16 +5,15 @@ const extractUsername = async (
   users: string[]
 ): Promise<Prisma.UserWhereUniqueInput[] | undefined> => {
   if (!users) return undefined;
-  const usernames = [];
+  const userids = [];
   for (let i = 0; i < users.length; i++) {
-    const username = users[i];
-    if (typeof username !== "string") return undefined;
-    if (!(await prisma.user.findFirst({ where: { username } })))
-      return undefined;
-    usernames.push({ username });
+    const id = users[i];
+    if (typeof id !== "string") return undefined;
+    if (!(await prisma.user.findFirst({ where: { id } }))) return undefined;
+    userids.push({ id });
   }
 
-  return usernames;
+  return userids;
 };
 
 export { extractUsername };

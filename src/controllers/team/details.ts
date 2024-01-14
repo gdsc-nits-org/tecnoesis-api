@@ -8,7 +8,9 @@ import * as Errors from "@errors";
 
 const getTeamDetails: Interfaces.Controller.Async = async (req, res, next) => {
   const { teamId: TID } = req.params;
-  const teamId = parseInt(TID);
+  const teamId = String(TID);
+
+  if (!teamId || teamId.length !== 24) return next(Errors.Module.invalidInput);
 
   const team = await prisma.team.findFirst({
     where: {
@@ -66,10 +68,10 @@ const getAllTeamsOfEvent: Interfaces.Controller.Async = async (
 ) => {
   const { eventId: EID } = req.params;
 
-  const eventId = parseInt(EID);
+  const eventId = String(EID);
 
-  if (isNaN(eventId)) {
-    return next(Errors.Event.eventDoesntExist);
+  if (!eventId || eventId.length !== 24) {
+    return next(Errors.Module.invalidInput);
   }
 
   const teams = await prisma.team.findMany({

@@ -46,6 +46,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
+  if (moduleId.length !== 24) return next(Errors.Module.invalidInput);
+
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
   }
@@ -56,8 +58,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   ) {
     return next(Errors.Module.invalidInput);
   }
-  if (isNaN(Number.parseInt(moduleId + "")))
-    return next(Errors.Module.invalidInput);
+  if (!String(moduleId + "")) return next(Errors.Module.invalidInput);
   if (
     typeof maxTeamSize !== "number" ||
     typeof minTeamSize !== "number" ||
@@ -87,15 +88,44 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
     req.body;
 
-  let organizersUsernames;
   if (organizers) {
-    organizersUsernames = await Utils.Event.extractUsername(organizers);
-    if (!organizersUsernames) return next(Errors.User.userNotFound);
+    if (!organizers.every((organizer) => organizer.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const results = await Promise.all(
+      organizers.map(async (organizer) => {
+        const user = await prisma.user.findFirst({ where: { id: organizer } });
+        if (!user) {
+          return false;
+        }
+        return true;
+      })
+    );
+
+    if (!results.every((result) => result)) {
+      return next(Errors.User.userNotFound);
+    }
   }
-  let managersUsernames;
+
   if (managers) {
-    managersUsernames = await Utils.Event.extractUsername(managers);
-    if (!managersUsernames) return next(Errors.User.userNotFound);
+    if (!managers.every((manager) => manager.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const results = await Promise.all(
+      managers.map(async (manager) => {
+        const user = await prisma.user.findFirst({ where: { id: manager } });
+        if (!user) {
+          return false;
+        }
+        return true;
+      })
+    );
+
+    if (!results.every((result) => result)) {
+      return next(Errors.User.userNotFound);
+    }
   }
 
   const event = await prisma.event.create({
@@ -118,14 +148,40 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       module: {
         connect: { id: moduleId },
       },
-      organizers: {
-        connect: organizersUsernames,
-      },
-      managers: {
-        connect: managersUsernames,
-      },
     },
   });
+
+  if (organizers) {
+    try {
+      organizers.map(async (id: string) => {
+        await prisma.eventOrganiser.create({
+          data: {
+            userId: id,
+            eventId: event.id,
+          },
+        });
+      });
+    } catch (e) {
+      await prisma.event.delete({ where: { id: event.id } });
+      return next(Errors.Event.unableToCreate);
+    }
+  }
+
+  if (managers) {
+    try {
+      managers.map(async (id: string) => {
+        await prisma.eventManager.create({
+          data: {
+            userId: id,
+            eventId: event.id,
+          },
+        });
+      });
+    } catch (e) {
+      await prisma.event.delete({ where: { id: event.id } });
+      return next(Errors.Event.unableToCreate);
+    }
+  }
 
   if (!event) return next(Errors.System.serverError);
   return res.json(Utils.Response.Success(event));
