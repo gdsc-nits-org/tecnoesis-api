@@ -11,25 +11,32 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
   if (!eventId || eventId.length !== 24)
     return next(Errors.Module.invalidInput);
 
-  const { organizers }: { organizers: [string] } = req.body;
+  if (
+    !(await prisma.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    }))
+  )
+    return next(Errors.Event.eventDoesntExist);
+
+  let { organizers }: { organizers: string[] } = req.body;
 
   if (!organizers) return next(Errors.Module.invalidInput);
+
+  organizers = organizers.filter(
+    (value, index, array) => array.indexOf(value) === index
+  );
+
+  console.log(organizers);
 
   if (!organizers.every((organizer) => organizer.length === 24)) {
     return next(Errors.Module.invalidInput);
   }
 
-  const results = await Promise.all(
-    organizers.map(async (organizer: string) => {
-      const user = await prisma.user.findFirst({ where: { id: organizer } });
-      if (!user) {
-        return false;
-      }
-      return true;
-    })
-  );
+  const userIdExist = await Utils.Event.userIdExist(organizers);
 
-  if (!results.every((result) => result)) {
+  if (!userIdExist) {
     return next(Errors.User.userNotFound);
   } else {
     const eventOrganisers: EventOrganiser[] = [];
