@@ -16,4 +16,22 @@ const extractUsername = async (
   return userids;
 };
 
-export { extractUsername };
+const userIdExist = async (organizers: string[]) => {
+  const results = await Promise.all(
+    organizers.map(async (organizer: string) => {
+      const user = await prisma.user.findFirst({ where: { id: organizer } });
+      if (!user) {
+        return false;
+      }
+      return true;
+    })
+  );
+
+  if (!results.every((result) => result)) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
+export { extractUsername, userIdExist };

@@ -93,17 +93,9 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       return next(Errors.Module.invalidInput);
     }
 
-    const results = await Promise.all(
-      organizers.map(async (organizer) => {
-        const user = await prisma.user.findFirst({ where: { id: organizer } });
-        if (!user) {
-          return false;
-        }
-        return true;
-      })
-    );
+    const userIdExist = await Utils.Event.userIdExist(organizers);
 
-    if (!results.every((result) => result)) {
+    if (!userIdExist) {
       return next(Errors.User.userNotFound);
     }
   }
@@ -113,17 +105,9 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       return next(Errors.Module.invalidInput);
     }
 
-    const results = await Promise.all(
-      managers.map(async (manager) => {
-        const user = await prisma.user.findFirst({ where: { id: manager } });
-        if (!user) {
-          return false;
-        }
-        return true;
-      })
-    );
+    const userIdExist = await Utils.Event.userIdExist(managers);
 
-    if (!results.every((result) => result)) {
+    if (!userIdExist) {
       return next(Errors.User.userNotFound);
     }
   }
