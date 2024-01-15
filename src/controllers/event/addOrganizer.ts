@@ -28,8 +28,6 @@ const addOrganizer: Interfaces.Controller.Async = async (req, res, next) => {
     (value, index, array) => array.indexOf(value) === index
   );
 
-  console.log(organizers);
-
   if (!organizers.every((organizer) => organizer.length === 24)) {
     return next(Errors.Module.invalidInput);
   }
