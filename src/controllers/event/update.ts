@@ -27,7 +27,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
   if (
-    String(eventId + "") ||
+    // String(eventId + "") ||
     typeof eventId !== "string" ||
     eventId.length !== 24
   )
