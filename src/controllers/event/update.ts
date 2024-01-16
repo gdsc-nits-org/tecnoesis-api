@@ -33,22 +33,32 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
-  if (!(await prisma.event.findFirst({ where: { id: eventId } })))
-    return next(Errors.Module.eventNotFound);
+  const eventOriginal = await prisma.event.findFirst({
+    where: { id: eventId },
+  });
+  if (!eventOriginal) return next(Errors.Module.eventNotFound);
   if (moduleId) {
     if (!moduleId || typeof moduleId !== "string" || eventId.length !== 24)
       return next(Errors.Module.invalidInput);
     if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
       return next(Errors.Module.moduleNotFound);
   }
-
+  if (minTeamSize > maxTeamSize) return next(Errors.Module.invalidInput);
   let regStart;
   if (registrationStartTime) regStart = new Date(registrationStartTime);
+  else {
+    regStart = new Date(eventOriginal.registrationStartTime);
+  }
   let regEnd;
   if (registrationEndTime) regEnd = new Date(registrationEndTime);
+  else {
+    regEnd = new Date(eventOriginal.registrationEndTime);
+  }
   if (registrationStartTime && JSON.stringify(regStart) === "null")
     return next(Errors.Module.invalidInput);
   if (registrationEndTime && JSON.stringify(regEnd) === "null")
+    return next(Errors.Module.invalidInput);
+  if (regStart && regEnd && regStart > regEnd)
     return next(Errors.Module.invalidInput);
 
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
