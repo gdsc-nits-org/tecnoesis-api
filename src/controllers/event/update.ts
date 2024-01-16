@@ -27,7 +27,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
   if (
-    String(eventId + "") ||
+    // String(eventId + "") ||
     typeof eventId !== "string" ||
     eventId.length !== 24
   )
@@ -41,7 +41,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
       return next(Errors.Module.moduleNotFound);
   }
-
   let regStart;
   if (registrationStartTime) regStart = new Date(registrationStartTime);
   let regEnd;
@@ -120,12 +119,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       moduleId,
-      organizers: {
-        connect: organizersUsernames,
-      },
-      managers: {
-        connect: managersUsernames,
-      },
       extraQuestions: extraQuestions,
     },
   });
