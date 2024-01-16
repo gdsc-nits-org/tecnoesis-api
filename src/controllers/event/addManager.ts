@@ -8,27 +8,37 @@ const addManager: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
 
-  if (!eventId) return next(Errors.Module.invalidInput);
+  if (!eventId || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
 
-  const { managers }: { managers: [string] } = req.body;
+  if (
+    !(await prisma.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    }))
+  )
+    return next(Errors.Event.eventDoesntExist);
+
+  let { managers }: { managers: string[] } = req.body;
 
   if (!managers) return next(Errors.Module.invalidInput);
+
+  managers = managers.filter(
+    (value, index, array) => array.indexOf(value) === index
+  );
 
   if (!managers.every((manager) => manager.length === 24)) {
     return next(Errors.Module.invalidInput);
   }
 
-  const results = await Promise.all(
-    managers.map(async (manager) => {
-      const user = await prisma.user.findFirst({ where: { id: manager } });
-      if (!user) {
-        return false;
-      }
-      return true;
-    })
+  managers = managers.filter(
+    (value, index, array) => array.indexOf(value) === index
   );
 
-  if (!results.every((result) => result)) {
+  const userIdExist = await Utils.Event.userIdExist(managers);
+
+  if (!userIdExist) {
     return next(Errors.User.userNotFound);
   } else {
     const eventManagers: EventManager[] = [];
