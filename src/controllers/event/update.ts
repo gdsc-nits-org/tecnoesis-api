@@ -26,11 +26,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const { eventId: EID } = req.params;
   const eventId = String(EID);
-  if (
-    // String(eventId + "") ||
-    typeof eventId !== "string" ||
-    eventId.length !== 24
-  )
+  if (typeof eventId !== "string" || eventId.length !== 24)
     return next(Errors.Module.invalidInput);
 
   const eventOriginal = await prisma.event.findFirst({
