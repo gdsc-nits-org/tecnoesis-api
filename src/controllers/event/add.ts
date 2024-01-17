@@ -51,6 +51,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
   }
+  if (minTeamSize > maxTeamSize) return next(Errors.Module.invalidInput);
 
   if (
     !(registrationIncentive && typeof registrationIncentive === "number") ||
@@ -75,7 +76,11 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
+
   if (JSON.stringify(regStart) === "null" || JSON.stringify(regEnd) === "null")
+    return next(Errors.Module.invalidInput);
+
+  if (regStart && regEnd && regStart > regEnd)
     return next(Errors.Module.invalidInput);
 
   if (
