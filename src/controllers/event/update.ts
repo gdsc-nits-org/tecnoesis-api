@@ -103,28 +103,12 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
-  const userExist = await Promise.all([
-    ...organizers.map(async (id: string) => {
-      const user = await prisma.user.findFirst({ where: { id: id } });
-
-      if (!user) {
-        return false;
-      } else {
-        return true;
-      }
-    }),
-    ...managers.map(async (id: string) => {
-      const user = await prisma.user.findFirst({ where: { id: id } });
-
-      if (!user) {
-        return false;
-      } else {
-        return true;
-      }
-    }),
+  const userIdExist = await Utils.Event.userIdExist([
+    ...organizers,
+    ...managers,
   ]);
 
-  if (!userExist.every((result) => result)) {
+  if (!userIdExist) {
     return next(Errors.User.userNotFound);
   }
 
@@ -154,55 +138,22 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     (id) => !managers.includes(id)
   );
 
-  await Promise.all([
-    eventOrganisers,
-    eventManagers,
-    ...organiserIdsToRemove.map(async (id: string) => {
-      await prisma.eventOrganiser.delete({
-        where: {
-          userId_eventId: { userId: id, eventId: eventId },
-        },
-      });
-    }),
-    ...managerIdsToRemove.map(async (id: string) => {
-      await prisma.eventManager.delete({
-        where: {
-          userId_eventId: {
-            userId: id,
-            eventId: eventId,
-          },
-        },
-      });
-    }),
-    ...organizers.map(async (id: string) => {
-      console.log(id);
-      await prisma.eventOrganiser.upsert({
-        create: {
-          user: { connect: { id: id } },
-          event: { connect: { id: eventId } },
-        },
-        update: {},
-        where: {
-          userId_eventId: { userId: id, eventId: eventId },
-        },
-      });
-    }),
-    ...managers.map(async (id: string) => {
-      await prisma.eventManager.upsert({
-        create: {
-          user: { connect: { id: id } },
-          event: { connect: { id: eventId } },
-        },
-        update: {},
-        where: {
-          userId_eventId: {
-            userId: id,
-            eventId: eventId,
-          },
-        },
-      });
-    }),
-  ]);
+  const connectOrCreateOrganiser = await Utils.Event.connectOrCreateId(
+    organizers,
+    eventId
+  );
+
+  const deleteOrganiser = await Utils.Event.deleteId(
+    organiserIdsToRemove,
+    eventId
+  );
+
+  const connectOrCreateManagers = await Utils.Event.connectOrCreateId(
+    managers,
+    eventId
+  );
+
+  const deleteManager = await Utils.Event.deleteId(managerIdsToRemove, eventId);
 
   const event = await prisma.event.update({
     where: { id: eventId },
@@ -223,6 +174,14 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       venue,
       moduleId,
       extraQuestions: extraQuestions,
+      organizers: {
+        connectOrCreate: connectOrCreateOrganiser,
+        delete: deleteOrganiser,
+      },
+      managers: {
+        connectOrCreate: connectOrCreateManagers,
+        delete: deleteManager,
+      },
     },
   });
 

@@ -117,17 +117,9 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     }
   }
 
-  const connectOrganiser = organizers.map((id) => {
-    return {
-      userId: id,
-    };
-  });
+  const connectOrganiser = await Utils.Event.connectId(organizers);
 
-  const connectManager = managers.map((id) => {
-    return {
-      userId: id,
-    };
-  });
+  const connectManager = await Utils.Event.connectId(managers);
 
   const event = await prisma.event.create({
     data: {
