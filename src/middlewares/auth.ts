@@ -38,6 +38,16 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
       firebaseId: uid,
     },
     include: {
+      teamsRegistered: {
+        select: {
+          team: {
+            select: {
+              members: true,
+              event: true,
+            },
+          },
+        },
+      },
       manages: {
         include: {
           event: {
