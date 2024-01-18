@@ -26,20 +26,24 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const { eventId: EID } = req.params;
   const eventId = String(EID);
-  if (typeof eventId !== "string" || eventId.length !== 24)
-    return next(Errors.Module.invalidInput);
 
   const eventOriginal = await prisma.event.findFirst({
     where: { id: eventId },
   });
   if (!eventOriginal) return next(Errors.Module.eventNotFound);
-  if (moduleId) {
-    if (!moduleId || typeof moduleId !== "string" || eventId.length !== 24)
-      return next(Errors.Module.invalidInput);
-    if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
-      return next(Errors.Module.moduleNotFound);
-  }
+
   if (minTeamSize > maxTeamSize) return next(Errors.Module.invalidInput);
+  if (!String(eventId) || typeof eventId !== "string" || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
+
+  if (!(await prisma.event.findFirst({ where: { id: eventId } })))
+    return next(Errors.Module.eventNotFound);
+
+  if (!moduleId || typeof moduleId !== "string" || moduleId.length !== 24)
+    return next(Errors.Module.invalidInput);
+  if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
+    return next(Errors.Module.moduleNotFound);
+
   let regStart;
   if (registrationStartTime) regStart = new Date(registrationStartTime);
   else {
@@ -57,19 +61,10 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (regStart && regEnd && regStart > regEnd)
     return next(Errors.Module.invalidInput);
 
-  const { organizers, managers }: { organizers: [string]; managers: [string] } =
-    req.body;
-
-  let organizersUsernames;
-  if (organizers) {
-    organizersUsernames = await Utils.Event.extractUsername(organizers);
-    if (!organizersUsernames) return next(Errors.User.userNotFound);
-  }
-  let managersUsernames;
-  if (managers) {
-    managersUsernames = await Utils.Event.extractUsername(managers);
-    if (!managersUsernames) return next(Errors.User.userNotFound);
-  }
+  const {
+    organizers = [],
+    managers = [],
+  }: { organizers: string[]; managers: string[] } = req.body;
 
   if (
     (registrationIncentive && !(typeof registrationIncentive === "number")) ||
@@ -108,6 +103,58 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
+  const userIdExist = await Utils.Event.userIdExist([
+    ...organizers,
+    ...managers,
+  ]);
+
+  if (!userIdExist) {
+    return next(Errors.User.userNotFound);
+  }
+
+  const eventOrganisers = await prisma.eventOrganiser.findMany({
+    where: {
+      eventId: eventId,
+    },
+  });
+
+  const eventOrganiserIds = eventOrganisers.map(
+    (organiser) => organiser.userId
+  );
+
+  const organiserIdsToRemove = eventOrganiserIds.filter(
+    (id) => !organizers.includes(id)
+  );
+
+  const eventManagers = await prisma.eventManager.findMany({
+    where: {
+      eventId: eventId,
+    },
+  });
+
+  const eventManagersUserId = eventManagers.map((manager) => manager.userId);
+
+  const managerIdsToRemove = eventManagersUserId.filter(
+    (id) => !managers.includes(id)
+  );
+
+  const connectOrCreateOrganiser = await Utils.Event.connectOrCreateId(
+    organizers,
+    eventId
+  );
+
+  const deleteOrganiser = await Utils.Event.deleteId(
+    organiserIdsToRemove,
+    eventId
+  );
+
+  const connectOrCreateManagers = await Utils.Event.connectOrCreateId(
+    managers,
+    eventId
+  );
+
+  const deleteManager = await Utils.Event.deleteId(managerIdsToRemove, eventId);
+
   const event = await prisma.event.update({
     where: { id: eventId },
     data: {
@@ -126,13 +173,15 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       moduleId,
+      extraQuestions: extraQuestions,
       organizers: {
-        connect: organizersUsernames,
+        connectOrCreate: connectOrCreateOrganiser,
+        delete: deleteOrganiser,
       },
       managers: {
-        connect: managersUsernames,
+        connectOrCreate: connectOrCreateManagers,
+        delete: deleteManager,
       },
-      extraQuestions: extraQuestions,
     },
   });
 
