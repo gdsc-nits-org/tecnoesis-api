@@ -27,19 +27,21 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
   const eventId = String(EID);
 
+  if (!String(eventId) || typeof eventId !== "string" || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
+
   const eventOriginal = await prisma.event.findFirst({
     where: { id: eventId },
   });
   if (!eventOriginal) return next(Errors.Module.eventNotFound);
 
   if (minTeamSize > maxTeamSize) return next(Errors.Module.invalidInput);
-  if (!String(eventId) || typeof eventId !== "string" || eventId.length !== 24)
-    return next(Errors.Module.invalidInput);
 
-  if (!(await prisma.event.findFirst({ where: { id: eventId } })))
-    return next(Errors.Module.eventNotFound);
-
-  if (!moduleId || typeof moduleId !== "string" || moduleId.length !== 24)
+  if (
+    !String(moduleId) ||
+    typeof moduleId !== "string" ||
+    moduleId.length !== 24
+  )
     return next(Errors.Module.invalidInput);
   if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
     return next(Errors.Module.moduleNotFound);
