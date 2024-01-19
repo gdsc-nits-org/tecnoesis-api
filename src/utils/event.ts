@@ -16,10 +16,10 @@ const extractUsername = async (
   return userids;
 };
 
-const userIdExist = async (organizers: string[]) => {
+const userIdExist = async (userIds: string[]) => {
   const results = await Promise.all(
-    organizers.map(async (organizer: string) => {
-      const user = await prisma.user.findFirst({ where: { id: organizer } });
+    userIds.map(async (id: string) => {
+      const user = await prisma.user.findFirst({ where: { id: id } });
       if (!user) {
         return false;
       }
@@ -34,4 +34,39 @@ const userIdExist = async (organizers: string[]) => {
   }
 };
 
-export { extractUsername, userIdExist };
+const connectId = async (userIds: string[]) => {
+  const connectResult = userIds.map((id: string) => {
+    return {
+      userId: id,
+    };
+  });
+
+  return connectResult;
+};
+
+const connectOrCreateId = async (userIds: string[], eventId: string) => {
+  const connectOrCreateResult = userIds.map((id: string) => {
+    return {
+      create: {
+        user: { connect: { id: id } },
+      },
+      where: {
+        userId_eventId: { userId: id, eventId: eventId },
+      },
+    };
+  });
+
+  return connectOrCreateResult;
+};
+
+const deleteId = async (userIds: string[], eventId: string) => {
+  const deleteResult = userIds.map((id: string) => {
+    return {
+      userId_eventId: { userId: id, eventId: eventId },
+    };
+  });
+
+  return deleteResult;
+};
+
+export { extractUsername, userIdExist, connectId, connectOrCreateId, deleteId };
