@@ -161,9 +161,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
 
     if (members.size === 1) {
       // Check for admin insufficient balance
-      if (req.admin!.balance < event!.registrationIncentive * members.size) {
-        return next(Errors.Transaction.insufficientBalance);
-      }
 
       await prisma.transaction.create({
         data: {

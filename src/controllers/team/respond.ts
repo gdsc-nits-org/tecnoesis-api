@@ -91,9 +91,6 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   });
 
   // Check for admin insufficient balance
-  if (req.admin!.balance < event!.registrationIncentive * team.members.length) {
-    return next(Errors.Transaction.insufficientBalance);
-  }
 
   // Check if status is registered in another team in the event
   const otherTeam = await prisma.team.findFirst({

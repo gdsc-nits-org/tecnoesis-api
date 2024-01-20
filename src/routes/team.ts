@@ -36,4 +36,11 @@ router.patch(
   Controllers.Team.teamRegistrationResponse
 );
 
+router.delete(
+  "/:teamId",
+  Middlewares.Team.fetchEventIdOfTeam,
+  Middlewares.Auth.isOrganizerOrAdmin,
+  Controllers.Team.deleteTeamById
+);
+
 export default router;
