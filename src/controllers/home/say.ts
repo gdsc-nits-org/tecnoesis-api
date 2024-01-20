@@ -2,7 +2,7 @@ import * as Interfaces from "@interfaces";
 // import * as Errors from "@errors";
 import * as Success from "@success";
 
-const sayHello: Interfaces.Controller.Async = async (_req, _res, next) => {
+const sayHello: Interfaces.Controller.Async = async (_req, _res) => {
   // _res.json(Success.Home.hello);
   return _res.json(Success.Home.hello);
 
