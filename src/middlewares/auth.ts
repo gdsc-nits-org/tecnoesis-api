@@ -42,7 +42,20 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
         select: {
           team: {
             select: {
-              members: true,
+              members: {
+                select: {
+                  id: true,
+                  registrationStatus: true,
+                  role: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      username: true,
+                    },
+                  },
+                },
+              },
               event: true,
             },
           },
