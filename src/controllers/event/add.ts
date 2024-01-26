@@ -93,6 +93,13 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
     req.body;
 
+  let connectOrganiser: {
+    userId: string;
+  }[] = [];
+  let connectManager: {
+    userId: string;
+  }[] = [];
+
   if (organizers) {
     if (!organizers.every((organizer) => organizer.length === 24)) {
       return next(Errors.Module.invalidInput);
@@ -103,6 +110,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     if (!userIdExist) {
       return next(Errors.User.userNotFound);
     }
+    connectOrganiser = await Utils.Event.connectId(organizers);
   }
 
   if (managers) {
@@ -115,11 +123,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     if (!userIdExist) {
       return next(Errors.User.userNotFound);
     }
+    connectManager = await Utils.Event.connectId(managers);
   }
-
-  const connectOrganiser = await Utils.Event.connectId(organizers);
-
-  const connectManager = await Utils.Event.connectId(managers);
 
   const event = await prisma.event.create({
     data: {
