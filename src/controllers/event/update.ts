@@ -10,6 +10,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     posterImage,
     attendanceIncentive,
     registrationIncentive,
+    thirdPartyURL,
     lat,
     lng,
     maxTeamSize,
@@ -61,6 +62,12 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (registrationEndTime && JSON.stringify(regEnd) === "null")
     return next(Errors.Module.invalidInput);
   if (regStart && regEnd && regStart > regEnd)
+    return next(Errors.Module.invalidInput);
+
+  if (
+    thirdPartyURL &&
+    (typeof thirdPartyURL !== "string" || !thirdPartyURL.length)
+  )
     return next(Errors.Module.invalidInput);
 
   const {
@@ -164,6 +171,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       posterImage,
       attendanceIncentive,
       registrationIncentive,
+      thirdPartyURL,
       lat,
       lng,
       maxTeamSize,

@@ -10,6 +10,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     posterImage,
     attendanceIncentive,
     registrationIncentive,
+    thirdPartyURL,
     lat,
     lng,
     maxTeamSize,
@@ -84,6 +85,12 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     return next(Errors.Module.invalidInput);
 
   if (
+    thirdPartyURL &&
+    (typeof thirdPartyURL !== "string" || !thirdPartyURL.length)
+  )
+    return next(Errors.Module.invalidInput);
+
+  if (
     !(await prisma.module.findFirst({
       where: { id: moduleId },
     }))
@@ -132,6 +139,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       posterImage,
       attendanceIncentive,
       registrationIncentive,
+      thirdPartyURL,
       lat,
       lng,
       maxTeamSize,
