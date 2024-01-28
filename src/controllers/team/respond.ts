@@ -92,26 +92,8 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
 
   // Check for admin insufficient balance
 
-  // Check if status is registered in another team in the event
-  const otherTeam = await prisma.team.findFirst({
-    where: {
-      eventId: team.eventId,
-      members: {
-        some: {
-          userId,
-          registrationStatus: RegistrationStatus.REGISTERED,
-        },
-      },
-    },
-  });
-
-  if (otherTeam) {
-    return next(Errors.Team.userAlreadyRegistered);
-  }
-
-  // Update Status
+  // Cancel Team Registration
   if (status === RegistrationStatus.CANCELLED) {
-    // Cancel Team Registration
     await prisma.team.update({
       where: {
         id: team.id,
@@ -130,7 +112,29 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
         },
       },
     });
-  } else if (status === RegistrationStatus.REGISTERED) {
+
+    return res.json(Success.Team.userStatusUpdated);
+  }
+
+  // Check if status is registered in another team in the event
+  const otherTeam = await prisma.team.findFirst({
+    where: {
+      eventId: team.eventId,
+      members: {
+        some: {
+          userId,
+          registrationStatus: RegistrationStatus.REGISTERED,
+        },
+      },
+    },
+  });
+
+  if (otherTeam) {
+    return next(Errors.Team.userAlreadyRegistered);
+  }
+
+  // Update Status
+  if (status === RegistrationStatus.REGISTERED) {
     // Update team and member status.
     // Complete it in a single transaction.
 
