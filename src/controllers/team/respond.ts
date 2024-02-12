@@ -17,7 +17,9 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   next
 ) => {
   const { teamId: TID } = req.params;
-  const teamId = parseInt(TID);
+  const teamId = String(TID);
+
+  if (!teamId || teamId.length !== 24) return next(Errors.Module.invalidInput);
 
   const userId = req.user!.id;
 
@@ -89,8 +91,29 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   });
 
   // Check for admin insufficient balance
-  if (req.admin!.balance < event!.registrationIncentive * team.members.length) {
-    return next(Errors.Transaction.insufficientBalance);
+
+  // Cancel Team Registration
+  if (status === RegistrationStatus.CANCELLED) {
+    await prisma.team.update({
+      where: {
+        id: team.id,
+      },
+      data: {
+        registrationStatus: RegistrationStatus.CANCELLED,
+        members: {
+          updateMany: {
+            where: {
+              teamId,
+            },
+            data: {
+              registrationStatus: RegistrationStatus.CANCELLED,
+            },
+          },
+        },
+      },
+    });
+
+    return res.json(Success.Team.userStatusUpdated);
   }
 
   // Check if status is registered in another team in the event
@@ -111,27 +134,7 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   }
 
   // Update Status
-  if (status === RegistrationStatus.CANCELLED) {
-    // Cancel Team Registration
-    await prisma.team.update({
-      where: {
-        id: team.id,
-      },
-      data: {
-        registrationStatus: RegistrationStatus.CANCELLED,
-        members: {
-          updateMany: {
-            where: {
-              teamId,
-            },
-            data: {
-              registrationStatus: RegistrationStatus.CANCELLED,
-            },
-          },
-        },
-      },
-    });
-  } else if (status === RegistrationStatus.REGISTERED) {
+  if (status === RegistrationStatus.REGISTERED) {
     // Update team and member status.
     // Complete it in a single transaction.
 

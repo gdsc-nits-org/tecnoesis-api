@@ -13,7 +13,11 @@ import * as Utils from "@utils";
 
 const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
   const { eventId: EID } = req.params;
-  const eventId = parseInt(EID);
+  const eventId = String(EID);
+
+  if (!eventId || eventId.length !== 24)
+    return next(Errors.Module.invalidInput);
+
   const { members: memberArray, extraInformation } =
     req.body as Interfaces.Team.RegisterTeamBody;
 
@@ -157,9 +161,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
 
     if (members.size === 1) {
       // Check for admin insufficient balance
-      if (req.admin!.balance < event!.registrationIncentive * members.size) {
-        return next(Errors.Transaction.insufficientBalance);
-      }
 
       await prisma.transaction.create({
         data: {

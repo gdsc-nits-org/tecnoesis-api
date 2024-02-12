@@ -38,32 +38,66 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
       firebaseId: uid,
     },
     include: {
-      manages: {
+      teamsRegistered: {
         select: {
-          name: true,
-          id: true,
-          attendanceIncentive: true,
-          registrationIncentive: true,
-          description: true,
-          maxTeamSize: true,
-          minTeamSize: true,
-          venue: true,
-          prizeDescription: true,
-          stagesDescription: true,
+          team: {
+            select: {
+              id: true,
+              registrationStatus: true,
+              teamName: true,
+              members: {
+                select: {
+                  id: true,
+                  registrationStatus: true,
+                  role: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      username: true,
+                    },
+                  },
+                },
+              },
+              event: true,
+            },
+          },
+        },
+      },
+      manages: {
+        include: {
+          event: {
+            select: {
+              name: true,
+              id: true,
+              attendanceIncentive: true,
+              registrationIncentive: true,
+              description: true,
+              maxTeamSize: true,
+              minTeamSize: true,
+              venue: true,
+              prizeDescription: true,
+              stagesDescription: true,
+            },
+          },
         },
       },
       organizes: {
-        select: {
-          name: true,
-          id: true,
-          attendanceIncentive: true,
-          registrationIncentive: true,
-          description: true,
-          maxTeamSize: true,
-          minTeamSize: true,
-          venue: true,
-          prizeDescription: true,
-          stagesDescription: true,
+        include: {
+          event: {
+            select: {
+              name: true,
+              id: true,
+              attendanceIncentive: true,
+              registrationIncentive: true,
+              description: true,
+              maxTeamSize: true,
+              minTeamSize: true,
+              venue: true,
+              prizeDescription: true,
+              stagesDescription: true,
+            },
+          },
         },
       },
     },
@@ -169,7 +203,7 @@ const isOrganizerOrAdmin: Interfaces.Middleware.Async = async (
 
   const { eventId } = req.params;
 
-  if (isNaN(parseInt(eventId))) {
+  if (!String(eventId)) {
     return next(Errors.Event.eventDoesntExist);
   }
 
@@ -181,10 +215,12 @@ const isOrganizerOrAdmin: Interfaces.Middleware.Async = async (
 
   const isOrganizer = await prisma.event.count({
     where: {
-      id: parseInt(eventId),
+      id: String(eventId),
       organizers: {
         some: {
-          firebaseId: uid,
+          user: {
+            firebaseId: uid,
+          },
         },
       },
     },

@@ -10,6 +10,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     posterImage,
     attendanceIncentive,
     registrationIncentive,
+    thirdPartyURL,
     lat,
     lng,
     maxTeamSize,
@@ -46,9 +47,13 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
+  if (!String(moduleId) || moduleId.length !== 24)
+    return next(Errors.Module.invalidInput);
+
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
   }
+  if (minTeamSize > maxTeamSize) return next(Errors.Module.invalidInput);
 
   if (
     !(registrationIncentive && typeof registrationIncentive === "number") ||
@@ -56,8 +61,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   ) {
     return next(Errors.Module.invalidInput);
   }
-  if (isNaN(Number.parseInt(moduleId + "")))
-    return next(Errors.Module.invalidInput);
   if (
     typeof maxTeamSize !== "number" ||
     typeof minTeamSize !== "number" ||
@@ -74,7 +77,17 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
+
   if (JSON.stringify(regStart) === "null" || JSON.stringify(regEnd) === "null")
+    return next(Errors.Module.invalidInput);
+
+  if (regStart && regEnd && regStart > regEnd)
+    return next(Errors.Module.invalidInput);
+
+  if (
+    thirdPartyURL &&
+    (typeof thirdPartyURL !== "string" || !thirdPartyURL.length)
+  )
     return next(Errors.Module.invalidInput);
 
   if (
@@ -87,15 +100,37 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const { organizers, managers }: { organizers: [string]; managers: [string] } =
     req.body;
 
-  let organizersUsernames;
+  let connectOrganiser: {
+    userId: string;
+  }[] = [];
+  let connectManager: {
+    userId: string;
+  }[] = [];
+
   if (organizers) {
-    organizersUsernames = await Utils.Event.extractUsername(organizers);
-    if (!organizersUsernames) return next(Errors.User.userNotFound);
+    if (!organizers.every((organizer) => organizer.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const userIdExist = await Utils.Event.userIdExist(organizers);
+
+    if (!userIdExist) {
+      return next(Errors.User.userNotFound);
+    }
+    connectOrganiser = await Utils.Event.connectId(organizers);
   }
-  let managersUsernames;
+
   if (managers) {
-    managersUsernames = await Utils.Event.extractUsername(managers);
-    if (!managersUsernames) return next(Errors.User.userNotFound);
+    if (!managers.every((manager) => manager.length === 24)) {
+      return next(Errors.Module.invalidInput);
+    }
+
+    const userIdExist = await Utils.Event.userIdExist(managers);
+
+    if (!userIdExist) {
+      return next(Errors.User.userNotFound);
+    }
+    connectManager = await Utils.Event.connectId(managers);
   }
 
   const event = await prisma.event.create({
@@ -104,6 +139,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       posterImage,
       attendanceIncentive,
       registrationIncentive,
+      thirdPartyURL,
       lat,
       lng,
       maxTeamSize,
@@ -119,10 +155,10 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
         connect: { id: moduleId },
       },
       organizers: {
-        connect: organizersUsernames,
+        create: connectOrganiser,
       },
       managers: {
-        connect: managersUsernames,
+        create: connectManager,
       },
     },
   });

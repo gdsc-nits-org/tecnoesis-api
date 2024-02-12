@@ -6,9 +6,9 @@ import { prisma } from "@utils/prisma";
 import { User } from "@prisma/client";
 
 const getOneUserById: Interfaces.Controller.Async = async (req, res, next) => {
-  const id = parseInt(req?.params?.id);
+  const id = String(req?.params?.id);
 
-  if (isNaN(id)) {
+  if (!id) {
     return next(Error.User.badRequest("Incorrect user id"));
   }
 
