@@ -10,7 +10,7 @@ const updateUserDetails: Interfaces.Controller.Async = async (
   res,
   next
 ) => {
-  const {
+  let {
     firstName,
     lastName,
     middleName,
@@ -20,28 +20,69 @@ const updateUserDetails: Interfaces.Controller.Async = async (
     imageUrl,
   } = req.body as Interfaces.User.UserUpdateBody;
 
-  const user = req?.user;
+  const user = req.user;
+
+  if (!user) {
+    return next(Errors.User.userNotFound);
+  }
+
+  firstName = firstName || user.firstName;
+  lastName = lastName || user.lastName;
+  middleName = middleName === "" ? "" : middleName || user.middleName;
+  collegeName = collegeName || user.collegeName;
+  registrationId = registrationId || user.registrationId;
+  phoneNumber = phoneNumber || user.phoneNumber;
+  imageUrl = imageUrl || user.imageUrl;
 
   if (phoneNumber && !Utils.User.validatePhoneNumber(phoneNumber)) {
     return next(Errors.User.notAcceptable("Phone number not acceptable"));
   }
 
-  const updatedUser = await prisma.user.update({
-    where: {
-      firebaseId: req?.user?.firebaseId,
-    },
-    data: {
-      firstName: firstName || user!.firstName,
-      lastName: lastName || user!.lastName,
-      middleName: middleName === "" ? "" : middleName || user!.middleName,
-      collegeName: collegeName || user!.collegeName,
-      registrationId: registrationId || user!.registrationId,
-      phoneNumber: phoneNumber || user!.phoneNumber,
-      imageUrl: imageUrl || user!.imageUrl,
-    },
-  });
+  try {
+    const updatedUser = await prisma.$transaction(async (prismaClient) => {
+      if (
+        await prismaClient.user.findFirst({
+          where: {
+            registrationId: registrationId,
+            collegeName: collegeName || "",
+            firebaseId: { not: user.firebaseId },
+          },
+        })
+      ) {
+        throw Errors.User.notAcceptable("Registration id already in use");
+      }
 
-  res.json(Success.User.updateUserResponse(updatedUser));
+      if (
+        phoneNumber &&
+        (await prismaClient.user.findFirst({
+          where: {
+            phoneNumber: phoneNumber,
+            firebaseId: { not: user.firebaseId },
+          },
+        }))
+      ) {
+        throw Errors.User.notAcceptable("Phone number already in use");
+      }
+
+      return await prismaClient.user.update({
+        where: {
+          firebaseId: user.firebaseId,
+        },
+        data: {
+          firstName,
+          lastName,
+          middleName,
+          collegeName,
+          registrationId,
+          phoneNumber,
+          imageUrl,
+        },
+      });
+    });
+    res.json(Success.User.updateUserResponse(updatedUser));
+  } catch (error) {
+    return next(error);
+  }
 };
 
 export { updateUserDetails };

@@ -14,13 +14,13 @@ interface CreateUserBody {
 }
 
 interface UserUpdateBody {
-  firstName: string | null | undefined;
-  lastName: string | null | undefined;
-  middleName: string | null | undefined;
-  collegeName: string | null | undefined;
-  registrationId: string | null | undefined;
-  phoneNumber: string | null | undefined;
-  imageUrl: string | null | undefined;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  collegeName?: string;
+  registrationId?: string | null;
+  phoneNumber?: string;
+  imageUrl?: string;
 }
 
 interface getMyTeamsResponseTeamRegistration {
