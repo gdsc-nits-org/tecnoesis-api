@@ -25,7 +25,7 @@ const app: Express = express();
 app
   .use(
     cors({
-      origin: "*",
+      origin: true,
     })
   )
   .use(helmet())
