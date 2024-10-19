@@ -102,7 +102,6 @@ const signUp: Interfaces.Controller.Async = async (req, res, next) => {
   await prisma.user.create({
     data: {
       email: process.env.NODE_ENV === "development" ? email : firebaseEmail!,
-      balance: 0,
       collegeName: collegeName,
       registrationId: registrationId,
       firebaseId: uid,

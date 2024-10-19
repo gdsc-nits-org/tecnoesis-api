@@ -8,8 +8,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const {
     description,
     posterImage,
-    attendanceIncentive,
-    registrationIncentive,
     thirdPartyURL,
     lat,
     lng,
@@ -74,13 +72,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     organizers = [],
     managers = [],
   }: { organizers: string[]; managers: string[] } = req.body;
-
-  if (
-    (registrationIncentive && !(typeof registrationIncentive === "number")) ||
-    (attendanceIncentive && !(typeof attendanceIncentive === "number"))
-  ) {
-    return next(Errors.Module.invalidInput);
-  }
 
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
@@ -169,8 +160,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     data: {
       description,
       posterImage,
-      attendanceIncentive,
-      registrationIncentive,
       thirdPartyURL,
       lat,
       lng,

@@ -20,17 +20,12 @@ model User {
   email       String @unique
   phoneNumber String
 
-  balance Int
-
   collegeName    String
   registrationId String?
 
   imageUrl String
 
   teamsRegistered TeamRegistration[]
-
-  to   Transaction[] @relation("to")
-  from Transaction[] @relation("from")
 
   manages EventManager[]
 
@@ -125,9 +120,6 @@ model Event {
   maxTeamSize Int
   minTeamSize Int
 
-  registrationIncentive Int @default(0)
-  attendanceIncentive   Int @default(0)
-
   prizeDescription  String
   stagesDescription String
   description       String
@@ -149,35 +141,6 @@ model Event {
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   teams Team[]
-
-  transactions Transaction[]
-}
-
-enum TransactionReason {
-  ATTENDANCE
-  PURCHASE
-  REGISTRATION
-  ONLINE_EVENT
-}
-
-model Transaction {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  fromUserId String @db.ObjectId
-  from       User   @relation(fields: [fromUserId], references: [id], name: "from", onDelete: Restrict)
-
-  toUserId String @db.ObjectId
-  to       User   @relation(fields: [toUserId], references: [id], name: "to", onDelete: Restrict)
-
-  amount Int
-
-  reason      TransactionReason
-  description String?
-
-  eventId String? @db.ObjectId
-  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Restrict)
-
-  createdAt DateTime @default(now())
 }
 
 model Statics {
