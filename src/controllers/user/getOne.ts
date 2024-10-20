@@ -19,8 +19,6 @@ const getOneUserById: Interfaces.Controller.Async = async (req, res, next) => {
     include: {
       manages: true,
       organizes: true,
-      to: true,
-      from: true,
       teamsRegistered: true,
     },
   });

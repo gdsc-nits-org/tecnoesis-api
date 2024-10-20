@@ -18,8 +18,6 @@ const getAllModules: Interfaces.Controller.Async = async (_req, res, next) => {
           id: true,
           name: true,
           posterImage: true,
-          attendanceIncentive: true,
-          registrationIncentive: true,
           description: true,
           registrationEndTime: true,
           registrationStartTime: true,

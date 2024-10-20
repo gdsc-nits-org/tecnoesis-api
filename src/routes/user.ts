@@ -14,11 +14,6 @@ router.get(
   Controllers.User.getMyTeams
 );
 router.get(
-  "/me/attended_events",
-  Middlewares.Auth.validateUser,
-  Controllers.User.getAllAttendedEventsOfUser
-);
-router.get(
   "/me",
   Middlewares.Auth.validateUser,
   Controllers.User.getLogedInUser

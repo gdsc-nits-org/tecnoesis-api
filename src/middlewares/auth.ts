@@ -70,8 +70,6 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
             select: {
               name: true,
               id: true,
-              attendanceIncentive: true,
-              registrationIncentive: true,
               description: true,
               maxTeamSize: true,
               minTeamSize: true,
@@ -88,8 +86,6 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
             select: {
               name: true,
               id: true,
-              attendanceIncentive: true,
-              registrationIncentive: true,
               description: true,
               maxTeamSize: true,
               minTeamSize: true,

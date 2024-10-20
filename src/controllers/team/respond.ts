@@ -1,11 +1,5 @@
 import { prisma } from "@utils/prisma";
-import {
-  Prisma,
-  RegistrationStatus,
-  Transaction,
-  TransactionReason,
-  User,
-} from "@prisma/client";
+import { RegistrationStatus } from "@prisma/client";
 
 import * as Interfaces from "@interfaces";
 import * as Errors from "@errors";
@@ -55,7 +49,6 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
           user: {
             select: {
               firebaseId: true,
-              balance: true,
             },
           },
         },
@@ -83,14 +76,6 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
   ) {
     return next(Errors.Team.userAlreadyResponded);
   }
-
-  const event = await prisma.event.findFirst({
-    where: {
-      id: team.eventId,
-    },
-  });
-
-  // Check for admin insufficient balance
 
   // Cancel Team Registration
   if (status === RegistrationStatus.CANCELLED) {
@@ -183,60 +168,6 @@ const teamRegistrationResponse: Interfaces.Controller.Async = async (
           },
           data: {
             registrationStatus: RegistrationStatus.REGISTERED,
-          },
-        });
-
-        const transactions: Prisma.Prisma__TransactionClient<Transaction>[] =
-          [];
-        const userUpdate: Prisma.Prisma__UserClient<User>[] = [];
-
-        team.members.forEach((member) => {
-          transactions.push(
-            prisma.transaction.create({
-              data: {
-                amount: event!.registrationIncentive,
-                reason: TransactionReason.REGISTRATION,
-                event: {
-                  connect: {
-                    id: event!.id,
-                  },
-                },
-                from: {
-                  connect: {
-                    firebaseId: req.admin!.firebaseId,
-                  },
-                },
-                to: {
-                  connect: {
-                    firebaseId: member.user.firebaseId,
-                  },
-                },
-              },
-            })
-          );
-          userUpdate.push(
-            prisma.user.update({
-              where: {
-                id: member.userId,
-              },
-              data: {
-                balance: member.user.balance + event!.registrationIncentive,
-              },
-            })
-          );
-        });
-
-        await Promise.all(transactions);
-        await Promise.all(userUpdate);
-
-        await prisma.user.update({
-          where: {
-            firebaseId: req.admin!.firebaseId,
-          },
-          data: {
-            balance:
-              req.admin!.balance -
-              event!.registrationIncentive * team.members.length,
           },
         });
       }
