@@ -2,7 +2,7 @@
 set -e
 
 echo "Pulling from git..."
-git pull origin dev
+git pull origin main
 echo "Installing dependencies..."
 pnpm install
 echo "Migrating database..."
