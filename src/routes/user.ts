@@ -7,7 +7,7 @@ const router: Router = Router({ mergeParams: true });
 
 // API to give the list of users on the basis of the search query
 router.get("/search/", Controllers.User.searchUsers);
-router.get("/", Middlewares.Auth.isAdmin, Controllers.User.getAllUsers);
+router.get("/", Controllers.User.getAllUsers);
 router.get(
   "/me/my_teams",
   Middlewares.Auth.validateUser,
