@@ -194,12 +194,21 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
 
         subject = `Team Registration Application Submitted | ${process.env.NAME}`;
       } else {
-        html = Utils.HTML.createRegisterInvitationHTML({
-          eventName: event!.name,
-          leaderName: user.firstName,
-          moduleName: module!.name,
-        });
-        subject = `Team Invitation for ${name} | ${process.env.NAME}`;
+        if (event.maxTeamSize === 1) {
+          html = Utils.HTML.sucessfullyRegisteredHTML({
+            eventName: event!.name,
+            leaderName: user.firstName,
+            moduleName: module!.name,
+          });
+          subject = `Successfully Registered for ${event.name} | ${process.env.NAME}`;
+        } else {
+          html = Utils.HTML.createRegisterInvitationHTML({
+            eventName: event!.name,
+            leaderName: user.firstName,
+            moduleName: module!.name,
+          });
+          subject = `Team Invitation for ${name} | ${process.env.NAME}`;
+        }
       }
 
       Utils.Email.sendMail(user.email, html, subject); // Await Not Used On Purpose
