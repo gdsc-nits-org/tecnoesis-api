@@ -9,8 +9,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     description,
     posterImage,
     thirdPartyURL,
-    lat,
-    lng,
     maxTeamSize,
     minTeamSize,
     moduleId,
@@ -27,8 +25,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     !(
       description &&
       posterImage &&
-      lat &&
-      lng &&
       maxTeamSize &&
       minTeamSize &&
       moduleId &&
@@ -53,8 +49,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (
     typeof maxTeamSize !== "number" ||
     typeof minTeamSize !== "number" ||
-    typeof lat !== "string" ||
-    typeof lng !== "string" ||
     typeof name !== "string" ||
     typeof description !== "string" ||
     typeof prizeDescription !== "string" ||
@@ -93,13 +87,9 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     return next(Errors.Module.moduleNotFound);
   }
 
-  const { organizers, managers }: { organizers: [string]; managers: [string] } =
-    req.body;
+  const { organizers }: { organizers: [string] } = req.body;
 
   let connectOrganiser: {
-    userId: string;
-  }[] = [];
-  let connectManager: {
     userId: string;
   }[] = [];
 
@@ -107,7 +97,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     if (!organizers.every((organizer) => organizer.length === 24)) {
       return next(Errors.Module.organizerIdInvalid);
     }
-
     const userIdExist = await Utils.Event.userIdExist(organizers);
 
     if (!userIdExist) {
@@ -116,26 +105,11 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     connectOrganiser = await Utils.Event.connectId(organizers);
   }
 
-  if (managers) {
-    if (!managers.every((manager) => manager.length === 24)) {
-      return next(Errors.Module.managerIdInvalid);
-    }
-
-    const userIdExist = await Utils.Event.userIdExist(managers);
-
-    if (!userIdExist) {
-      return next(Errors.User.userNotFound);
-    }
-    connectManager = await Utils.Event.connectId(managers);
-  }
-
   const event = await prisma.event.create({
     data: {
       description,
       posterImage,
       thirdPartyURL,
-      lat,
-      lng,
       maxTeamSize,
       minTeamSize,
       name,
@@ -150,9 +124,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       },
       organizers: {
         create: connectOrganiser,
-      },
-      managers: {
-        create: connectManager,
       },
     },
   });

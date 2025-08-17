@@ -64,22 +64,6 @@ const validateUser: Interfaces.Middleware.Async = async (req, _res, next) => {
           },
         },
       },
-      manages: {
-        include: {
-          event: {
-            select: {
-              name: true,
-              id: true,
-              description: true,
-              maxTeamSize: true,
-              minTeamSize: true,
-              venue: true,
-              prizeDescription: true,
-              stagesDescription: true,
-            },
-          },
-        },
-      },
       organizes: {
         include: {
           event: {

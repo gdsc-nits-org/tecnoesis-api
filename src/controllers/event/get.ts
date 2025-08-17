@@ -24,22 +24,6 @@ const getAllEvents: Interfaces.Controller.Async = async (_req, res, next) => {
           },
         },
       },
-      managers: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              middleName: true,
-              lastName: true,
-              username: true,
-              phoneNumber: true,
-              imageUrl: true,
-            },
-          },
-        },
-      },
     },
   });
 
@@ -79,22 +63,6 @@ const getEventsByModule: Interfaces.Controller.Async = async (
             },
           },
         },
-        managers: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                middleName: true,
-                lastName: true,
-                username: true,
-                phoneNumber: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
       },
     });
   else events = await prisma.event.findMany();
@@ -115,22 +83,6 @@ const getEventById: Interfaces.Controller.Async = async (req, res, next) => {
     include: {
       module: true,
       organizers: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              middleName: true,
-              lastName: true,
-              username: true,
-              phoneNumber: true,
-              imageUrl: true,
-            },
-          },
-        },
-      },
-      managers: {
         include: {
           user: {
             select: {

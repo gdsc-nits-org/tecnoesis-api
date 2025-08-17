@@ -27,21 +27,7 @@ model User {
 
   teamsRegistered TeamRegistration[]
 
-  manages EventManager[]
-
   organizes EventOrganiser[]
-}
-
-model EventManager {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  eventId String @db.ObjectId
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, eventId])
 }
 
 model EventOrganiser {
@@ -59,7 +45,7 @@ model EventOrganiser {
 model Team {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  teamName String
+  teamName String? // optional team name for solo participants
 
   registrationStatus RegistrationStatus
 
@@ -125,10 +111,6 @@ model Event {
   description       String
 
   venue String
-  lat   String
-  lng   String
-
-  managers EventManager[]
 
   organizers EventOrganiser[]
 
