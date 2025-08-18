@@ -17,7 +17,6 @@ const updateUserDetails: Interfaces.Controller.Async = async (
     collegeName,
     registrationId,
     phoneNumber,
-    imageUrl,
   } = req.body as Interfaces.User.UserUpdateBody;
 
   const user = req.user;
@@ -26,13 +25,14 @@ const updateUserDetails: Interfaces.Controller.Async = async (
     return next(Errors.User.userNotFound);
   }
 
+  const imageUrl = req.file?.location || user.imageUrl;
+
   firstName = firstName || user.firstName;
   lastName = lastName || user.lastName;
   middleName = middleName === "" ? "" : middleName || user.middleName;
   collegeName = collegeName || user.collegeName;
   registrationId = registrationId || user.registrationId;
   phoneNumber = phoneNumber || user.phoneNumber;
-  imageUrl = imageUrl || user.imageUrl;
 
   if (phoneNumber && !Utils.User.validatePhoneNumber(phoneNumber)) {
     return next(Errors.User.notAcceptable("Phone number not acceptable"));

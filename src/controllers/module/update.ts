@@ -5,8 +5,7 @@ import * as Errors from "@errors";
 import * as Utils from "@utils";
 
 const updateModule: Interfaces.Controller.Async = async (req, res, next) => {
-  const { description, iconImage, coverImage, name, thirdPartyURL } =
-    req.body as Module;
+  const { description, name, thirdPartyURL } = req.body as Module;
   const { moduleId: MID } = req.params;
   const moduleId = String(MID);
   if (!moduleId || moduleId.length !== 24)
@@ -14,19 +13,16 @@ const updateModule: Interfaces.Controller.Async = async (req, res, next) => {
   if (!(await prisma.module.findFirst({ where: { id: moduleId } })))
     return next(Errors.Module.moduleNotFound);
 
+  const coverImage = req.files && (req.files as any).coverImage?.[0]?.path;
+  const iconImage = req.files && (req.files as any).iconImage?.[0]?.path;
+
   if (
-    (description && typeof description !== "string") ||
-    (iconImage && typeof iconImage !== "string") ||
-    (coverImage && typeof coverImage !== "string") ||
     (name && typeof name !== "string") ||
     (thirdPartyURL && typeof thirdPartyURL !== "string")
   )
     return next(Errors.Module.invalidInput);
 
   if (
-    (typeof description === "string" && !description.length) ||
-    (typeof iconImage === "string" && !iconImage.length) ||
-    (typeof coverImage === "string" && !coverImage.length) ||
     (typeof name === "string" && !name.length) ||
     (typeof thirdPartyURL === "string" && !thirdPartyURL.length)
   )

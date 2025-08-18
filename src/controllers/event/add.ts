@@ -7,7 +7,6 @@ import * as Utils from "@utils";
 const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const {
     description,
-    posterImage,
     thirdPartyURL,
     maxTeamSize,
     minTeamSize,
@@ -21,9 +20,10 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     extraQuestions,
   } = req.body as Event;
 
+  const posterImage = (req.file as any)?.location;
+
   if (
     !(
-      description &&
       posterImage &&
       maxTeamSize &&
       minTeamSize &&
@@ -50,7 +50,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     typeof maxTeamSize !== "number" ||
     typeof minTeamSize !== "number" ||
     typeof name !== "string" ||
-    typeof description !== "string" ||
     typeof prizeDescription !== "string" ||
     typeof stagesDescription !== "string" ||
     typeof venue !== "string" ||

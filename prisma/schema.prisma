@@ -85,7 +85,7 @@ model Module {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name        String
-  description String
+  description String?
 
   iconImage  String
   coverImage String
@@ -108,7 +108,7 @@ model Event {
 
   prizeDescription  String
   stagesDescription String
-  description       String
+  description       String?
 
   venue String
 

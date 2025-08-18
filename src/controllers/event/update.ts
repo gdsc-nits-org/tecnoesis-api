@@ -7,7 +7,6 @@ import * as Utils from "@utils";
 const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const {
     description,
-    posterImage,
     thirdPartyURL,
     maxTeamSize,
     minTeamSize,
@@ -20,6 +19,8 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     venue,
     extraQuestions,
   } = req.body as Event;
+
+  const posterImage = (req.file as any)?.location;
 
   const { eventId: EID } = req.params;
   const eventId = String(EID);
@@ -76,7 +77,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     (minTeamSize && typeof minTeamSize !== "number") ||
     (maxTeamSize && typeof maxTeamSize !== "number") ||
     (name && typeof name !== "string") ||
-    (description && typeof description !== "string") ||
     (prizeDescription && typeof prizeDescription !== "string") ||
     (stagesDescription && typeof stagesDescription !== "string") ||
     (venue && typeof venue !== "string") ||
@@ -86,7 +86,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   if (
     (typeof name === "string" && !name.length) ||
-    (typeof description === "string" && !description.length) ||
     (typeof prizeDescription === "string" && !prizeDescription.length) ||
     (typeof stagesDescription === "string" && !stagesDescription.length) ||
     (typeof venue === "string" && !venue.length) ||
