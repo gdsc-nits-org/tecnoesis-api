@@ -25,7 +25,8 @@ const updateUserDetails: Interfaces.Controller.Async = async (
     return next(Errors.User.userNotFound);
   }
 
-  const imageUrl = req.file?.location || user.imageUrl;
+  const imageUrl =
+    (req.file as Express.MulterS3.File)?.location || user.imageUrl;
 
   firstName = firstName || user.firstName;
   lastName = lastName || user.lastName;

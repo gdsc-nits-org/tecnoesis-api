@@ -8,8 +8,10 @@ const createModule: Interfaces.Controller.Async = async (req, res, next) => {
   try {
     const { description, name, thirdPartyURL } = req.body as Partial<Module>;
 
-    const coverImage = req.files && (req.files as any).coverImage?.[0]?.path;
-    const iconImage = req.files && (req.files as any).iconImage?.[0]?.path;
+    const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+
+    const coverImage = files?.coverImage?.[0]?.location;
+    const iconImage = files?.iconImage?.[0]?.location;
 
     if (!coverImage || !iconImage || !name) {
       return next(Errors.Module.invalidInput);
