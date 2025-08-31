@@ -30,7 +30,7 @@ interface getMyTeamsResponseTeamRegistration {
   team: {
     id: string;
     registrationStatus: RegistrationStatus;
-    teamName: string;
+    teamName: string | null;
     extraInformation: Prisma.JsonValue[];
     members: {
       id: string;

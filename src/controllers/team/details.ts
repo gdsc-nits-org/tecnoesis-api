@@ -22,8 +22,6 @@ const getTeamDetails: Interfaces.Controller.Async = async (req, res, next) => {
       event: {
         select: {
           name: true,
-          lat: true,
-          lng: true,
           module: {
             select: {
               name: true,

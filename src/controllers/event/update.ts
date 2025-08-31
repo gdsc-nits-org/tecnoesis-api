@@ -7,10 +7,7 @@ import * as Utils from "@utils";
 const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const {
     description,
-    posterImage,
     thirdPartyURL,
-    lat,
-    lng,
     maxTeamSize,
     minTeamSize,
     moduleId,
@@ -22,6 +19,8 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     venue,
     extraQuestions,
   } = req.body as Event;
+
+  const posterImage = (req.file as any)?.location;
 
   const { eventId: EID } = req.params;
   const eventId = String(EID);
@@ -68,10 +67,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
-  const {
-    organizers = [],
-    managers = [],
-  }: { organizers: string[]; managers: string[] } = req.body;
+  const { organizers = [] }: { organizers: string[] } = req.body;
 
   if (extraQuestions && !Array.isArray(extraQuestions)) {
     return next(Errors.Module.invalidInput);
@@ -80,10 +76,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (
     (minTeamSize && typeof minTeamSize !== "number") ||
     (maxTeamSize && typeof maxTeamSize !== "number") ||
-    (lat && typeof lat !== "string") ||
-    (lng && typeof lng !== "string") ||
     (name && typeof name !== "string") ||
-    (description && typeof description !== "string") ||
     (prizeDescription && typeof prizeDescription !== "string") ||
     (stagesDescription && typeof stagesDescription !== "string") ||
     (venue && typeof venue !== "string") ||
@@ -92,10 +85,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     return next(Errors.Module.invalidInput);
 
   if (
-    (typeof lat === "string" && !lat.length) ||
-    (typeof lng === "string" && !lng.length) ||
     (typeof name === "string" && !name.length) ||
-    (typeof description === "string" && !description.length) ||
     (typeof prizeDescription === "string" && !prizeDescription.length) ||
     (typeof stagesDescription === "string" && !stagesDescription.length) ||
     (typeof venue === "string" && !venue.length) ||
@@ -103,10 +93,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
   )
     return next(Errors.Module.invalidInput);
 
-  const userIdExist = await Utils.Event.userIdExist([
-    ...organizers,
-    ...managers,
-  ]);
+  const userIdExist = await Utils.Event.userIdExist([...organizers]);
 
   if (!userIdExist) {
     return next(Errors.User.userNotFound);
@@ -126,18 +113,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     (id) => !organizers.includes(id)
   );
 
-  const eventManagers = await prisma.eventManager.findMany({
-    where: {
-      eventId: eventId,
-    },
-  });
-
-  const eventManagersUserId = eventManagers.map((manager) => manager.userId);
-
-  const managerIdsToRemove = eventManagersUserId.filter(
-    (id) => !managers.includes(id)
-  );
-
   const connectOrCreateOrganiser = await Utils.Event.connectOrCreateId(
     organizers,
     eventId
@@ -148,21 +123,12 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     eventId
   );
 
-  const connectOrCreateManagers = await Utils.Event.connectOrCreateId(
-    managers,
-    eventId
-  );
-
-  const deleteManager = await Utils.Event.deleteId(managerIdsToRemove, eventId);
-
   const event = await prisma.event.update({
     where: { id: eventId },
     data: {
       description,
       posterImage,
       thirdPartyURL,
-      lat,
-      lng,
       maxTeamSize,
       minTeamSize,
       name,
@@ -176,10 +142,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       organizers: {
         connectOrCreate: connectOrCreateOrganiser,
         delete: deleteOrganiser,
-      },
-      managers: {
-        connectOrCreate: connectOrCreateManagers,
-        delete: deleteManager,
       },
     },
   });
