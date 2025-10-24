@@ -5,7 +5,7 @@ import * as Middlewares from "@middlewares";
 
 const router: Router = Router({ mergeParams: true });
 
-router.post("/opt-in", Middlewares.Auth.validateUser, Controllers.Merch.optIn);
+router.put("/opt-in", Middlewares.Auth.validateUser, Controllers.Merch.optIn);
 
 router.post(
   "/order",
