@@ -42,6 +42,16 @@ const createOrder: Interfaces.Controller.Async = async (req, res, next) => {
   if (validatedItems.length === 0) {
     return next(Errors.Merch.invalidInput);
   }
+
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { hasOpted: true },
+  });
+
+  if (!user?.hasOpted) {
+    return next(Errors.Merch.userNotOptedForBHM);
+  }
+
   const existingOrders = await prisma.merchOrder.findMany({
     where: {
       userId: req.user!.id,

@@ -11,4 +11,9 @@ const invalidInput = Utils.Response.Error(
   400
 );
 
-export { orderAlreadyExists, invalidInput };
+const userNotOptedForBHM = Utils.Response.Error(
+  "The user has not opted for BHM deduction",
+  403
+);
+
+export { orderAlreadyExists, invalidInput, userNotOptedForBHM };
