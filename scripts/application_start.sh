@@ -13,7 +13,7 @@ pnpm install --frozen-lockfile
 # Run database migrations
 echo "Running database migrations..."
 pnpm prisma generate
-pnpm db:deploy
+pnpm prisma db push
 
 # Build application
 echo "Building application..."
