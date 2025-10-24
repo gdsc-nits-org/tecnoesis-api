@@ -166,7 +166,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
         members: {
           create: memberRegistration,
         },
-        extraInformation: extraInformation,
+        extraInformation: extraInformation as Prisma.InputJsonValue[],
       },
     });
 

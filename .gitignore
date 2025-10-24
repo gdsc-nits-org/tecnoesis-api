@@ -12,3 +12,5 @@ dist
 *secret*
 
 .DS_Store
+.vscode
+.kiro

@@ -1,5 +1,5 @@
 import * as Interfaces from "@interfaces";
-import { Event } from "@prisma/client";
+import { Event, Prisma } from "@prisma/client";
 import { prisma } from "@utils/prisma";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
@@ -138,7 +138,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       moduleId,
-      extraQuestions: extraQuestions,
+      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
       organizers: {
         connectOrCreate: connectOrCreateOrganiser,
         delete: deleteOrganiser,
