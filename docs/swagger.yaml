@@ -249,6 +249,70 @@ components:
             totalMembers:
               type: integer
 
+    MerchOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        
+        type:
+          type: string
+          enum:
+            - Tecnoesis
+            - Spark
+          example: "Tecnoesis"
+        
+        size:
+          type: string
+          enum:
+            - XS
+            - S
+            - M
+            - L
+            - XL
+            - XXL
+          example: "M"
+        
+        quantity:
+          type: integer
+          example: 1
+        
+        createdAt:
+          type: string
+          example: "2024-10-24T10:30:00.000Z"
+        
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "507f1f77bcf86cd799439011"
+            firstName:
+              type: string
+              example: "John"
+            lastName:
+              type: string
+              example: "Doe"
+            email:
+              type: string
+              example: "john.doe@nits.ac.in"
+            username:
+              type: string
+              example: "johndoe"
+            phoneNumber:
+              type: string
+              example: "9876543210"
+            registrationId:
+              type: string
+              example: "2012001"
+            hostelName:
+              type: string
+              example: "Barak Hostel"
+            collegeName:
+              type: string
+              example: "National Institute of Technology, Silchar"
+
 servers:
   - url: http://localhost:5000/api
     description: Development Server
@@ -2650,3 +2714,402 @@ paths:
                   msg:
                     type: string
                     example: Could not find static with given name
+
+  /merch/opt-in:
+    post:
+      summary: Opt in for BHM deduction
+      description: Allow user to opt in for BHM (hostel mess) deduction to enable merchandise ordering
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully opted in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully opted in for BHM deduction"
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "User not authenticated"
+        '409':
+          description: User has already opted in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "You have already opted in for BHM deduction"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+
+  /merch/order:
+    post:
+      summary: Create a new merchandise order
+      description: Place an order for merchandise items (T-shirts). Users can order one item per merchandise type.
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: A JSON object containing the order items
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                          - Tecnoesis
+                          - Spark
+                        example: "Tecnoesis"
+                      size:
+                        type: string
+                        enum:
+                          - XS
+                          - S
+                          - M
+                          - L
+                          - XL
+                          - XXL
+                        example: "M"
+                      quantity:
+                        type: integer
+                        example: 1
+                    required:
+                      - type
+                      - size
+                      - quantity
+              required:
+                - items
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: "Order placed successfully"
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        type:
+                          type: string
+                          example: "Tecnoesis"
+                        size:
+                          type: string
+                          example: "M"
+                        quantity:
+                          type: integer
+                          example: 1
+                        userId:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        createdAt:
+                          type: string
+                          example: "2024-10-24T10:30:00.000Z"
+        '400':
+          description: Invalid order data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 400
+                  msg:
+                    type: string
+                    example: "Invalid order data. Please check your selection and try again."
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 401
+                  msg:
+                    type: string
+                    example: "User Not authenticated"
+        '409':
+          description: Order already exists for the merchandise type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 409
+                  msg:
+                    type: string
+                    example: "You have already placed an order for: Tecnoesis"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  msg:
+                    type: string
+                    example: "Internal server error"
+
+  /merch/order/me:
+    get:
+      summary: Get current user's merchandise orders
+      description: Retrieve all merchandise orders placed by the authenticated user
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MerchOrder'
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 401
+                  msg:
+                    type: string
+                    example: "User Not authenticated"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  msg:
+                    type: string
+                    example: "Internal server error"
+
+  /merch/order/all:
+    get:
+      summary: Get all merchandise orders (Admin only)
+      description: Retrieve all merchandise orders from all users. Only accessible by administrators.
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  count:
+                    type: integer
+                    example: 42
+                    description: Total number of orders
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MerchOrder'
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 401
+                  msg:
+                    type: string
+                    example: "User Not authenticated"
+        '403':
+          description: User is not authorized (not an admin)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 403
+                  msg:
+                    type: string
+                    example: "User is not authorized to perform the request"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  msg:
+                    type: string
+                    example: "Internal server error"
+
+  /merch/order/{userId}:
+    get:
+      summary: Get merchandise orders for a specific user (Admin only)
+      description: Retrieve all merchandise orders for a specific user by their user ID. Only accessible by administrators.
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: The unique identifier of the user
+          example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: User orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MerchOrder'
+        '400':
+          description: Invalid user ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 400
+                  msg:
+                    type: string
+                    example: "Invalid order data. Please check your selection and try again."
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 401
+                  msg:
+                    type: string
+                    example: "User Not authenticated"
+        '403':
+          description: User is not authorized (not an admin)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 403
+                  msg:
+                    type: string
+                    example: "User is not authorized to perform the request"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  msg:
+                    type: string
+                    example: "Internal server error"

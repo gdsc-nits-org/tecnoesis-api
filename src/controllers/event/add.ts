@@ -1,5 +1,5 @@
 import * as Interfaces from "@interfaces";
-import { Event } from "@prisma/client";
+import { Event, Prisma } from "@prisma/client";
 import { prisma } from "@utils/prisma";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
@@ -113,7 +113,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       registrationStartTime: regStart,
       stagesDescription,
       venue,
-      extraQuestions,
+      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
       module: {
         connect: { id: moduleId },
       },

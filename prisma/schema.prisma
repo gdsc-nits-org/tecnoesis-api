@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions", "fullTextSearch"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -21,12 +20,16 @@ model User {
 
   collegeName    String
   registrationId String?
+  hostelName     String?
+  imageUrl       String
 
-  imageUrl String
+  hasOpted Boolean @default(false)
 
   teamsRegistered TeamRegistration[]
 
   organizes EventOrganiser[]
+
+  merchOrders MerchOrder[]
 }
 
 model EventOrganiser {
@@ -150,4 +153,24 @@ model SparkTshirt {
   tshirtSize     TshirtSize
   paymentReceipt String
   transactionId  String     @unique
+}
+
+enum MerchType {
+  Tecnoesis
+  Spark
+}
+
+model MerchOrder {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type     MerchType
+  size     TshirtSize
+  quantity Int        @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, type])
 }
