@@ -14,3 +14,10 @@ dist
 .DS_Store
 .vscode
 .kiro
+
+*.pem
+
+# Deployment artifacts
+deployment/
+*.zip
+tecno-backend-deployment.zip
