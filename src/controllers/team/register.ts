@@ -42,11 +42,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       moduleId: true,
       isPaymentRequired: true,
       registrationFee: true,
-      accountHolderName: true,
-      accountNumber: true,
-      ifscCode: true,
-      bankName: true,
-      upiId: true,
+      vendorId: true,
     },
   });
 
@@ -96,6 +92,11 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       const orderAmount = event.registrationFee;
 
       /* eslint-disable camelcase */
+      // Validate bank account details are present
+      if (!event.vendorId) {
+        return next(Errors.Payment.paymentMethodNotConfigured);
+      }
+
       const orderResponse = await cashfree.PGCreateOrder({
         order_id: orderId,
         order_amount: orderAmount,
@@ -110,16 +111,18 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
           return_url: `${process.env.FRONTEND_URL}/payment/verify?orderId=${orderId}`,
           notify_url: `${process.env.API_URL}/payment/notify`,
         },
-        order_tags: {
-          event_id: eventId,
-          team_name: name,
-        },
         order_note: JSON.stringify({
           members: Array.from(members),
           extraInformation,
         }),
-        /* eslint-enable camelcase */
+        order_splits: [
+          {
+            vendor_id: event.vendorId,
+            percentage: 100,
+          },
+        ],
       });
+      /* eslint-enable camelcase */
 
       // Store payment details and pending team registration
       const payment = await prisma.paymentTransaction.create({

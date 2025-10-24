@@ -119,13 +119,7 @@ model Event {
   // Payment related fields
   registrationFee   Float   @default(0)
   isPaymentRequired Boolean @default(false)
-
-  // Bank account details for receiving payments
-  accountHolderName String?
-  accountNumber     String?
-  ifscCode          String?
-  bankName          String?
-  upiId             String?
+  vendorId          String?
 
   organizers EventOrganiser[]
 

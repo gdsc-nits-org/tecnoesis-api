@@ -41,7 +41,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
-    "typeRoots": ["@types", "./node_modules/@types"],
+    "typeRoots": ["src/types", "@types", "./node_modules/@types"],
     "resolveJsonModule": true
   },
   "ts-node": {
