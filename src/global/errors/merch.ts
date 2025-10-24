@@ -16,4 +16,9 @@ const userNotOptedForBHM = Utils.Response.Error(
   403
 );
 
-export { orderAlreadyExists, invalidInput, userNotOptedForBHM };
+const alreadyOptedIn = Utils.Response.Error(
+  "You have already opted in for BHM deduction",
+  409
+);
+
+export { orderAlreadyExists, invalidInput, userNotOptedForBHM, alreadyOptedIn };

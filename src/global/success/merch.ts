@@ -8,4 +8,9 @@ const orderCreated = (data: any) =>
 
 const orderRetrieved = (data: any) => Utils.Response.Success(data);
 
-export { orderCreated, orderRetrieved };
+const optedIn = () =>
+  Utils.Response.Success({
+    message: "Successfully opted in for BHM deduction",
+  });
+
+export { orderCreated, orderRetrieved, optedIn };

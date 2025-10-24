@@ -2715,6 +2715,68 @@ paths:
                     type: string
                     example: Could not find static with given name
 
+  /merch/opt-in:
+    post:
+      summary: Opt in for BHM deduction
+      description: Allow user to opt in for BHM (hostel mess) deduction to enable merchandise ordering
+      tags:
+        - Merch
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully opted in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully opted in for BHM deduction"
+        '401':
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "User not authenticated"
+        '409':
+          description: User has already opted in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "You have already opted in for BHM deduction"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+
   /merch/order:
     post:
       summary: Create a new merchandise order
