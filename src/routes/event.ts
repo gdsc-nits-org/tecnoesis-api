@@ -25,7 +25,7 @@ router.get("/", Controllers.Event.getAllEvents);
 
 router.patch(
   "/:eventId/",
-  Middlewares.Auth.isAdmin,
+  Middlewares.Auth.isOrganizerOrAdmin,
   upload.single("posterImage"), //updating event poster
   uploadErrors,
   Controllers.Event.updateEvent
@@ -33,7 +33,7 @@ router.patch(
 
 router.delete(
   "/:eventId/",
-  Middlewares.Auth.isAdmin,
+  Middlewares.Auth.isOrganizerOrAdmin,
   Controllers.Event.deleteEvent
 );
 
