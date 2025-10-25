@@ -10,13 +10,12 @@ router.post(
   "/create",
   Middlewares.Auth.isAdmin,
   upload.single("posterImage"), // event poster upload
-  uploadErrors,
   Controllers.Event.createEvent
 );
 
 router.post(
   "/add/organiser/:eventId",
-  Middlewares.Auth.isAdmin,
+  Middlewares.Auth.isOrganizerOrAdmin,
   Controllers.Event.addOrganizer
 );
 
@@ -25,9 +24,8 @@ router.get("/", Controllers.Event.getAllEvents);
 
 router.patch(
   "/:eventId/",
-  Middlewares.Auth.isAdmin,
+  Middlewares.Auth.isOrganizerOrAdmin,
   upload.single("posterImage"), //updating event poster
-  uploadErrors,
   Controllers.Event.updateEvent
 );
 
