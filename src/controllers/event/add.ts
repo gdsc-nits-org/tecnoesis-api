@@ -21,20 +21,19 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const posterImage = (req.file as Express.MulterS3.File).location;
 
+  // Parse team sizes to integers
+  const parsedMaxTeamSize = parseInt(String(maxTeamSize), 10);
+  const parsedMinTeamSize = parseInt(String(minTeamSize), 10);
+
+  // Validate parsed integers
+  if (isNaN(parsedMaxTeamSize) || isNaN(parsedMinTeamSize)) {
+    return next(Errors.Module.invalidAttribute);
+  }
+
   if (!String(moduleId) || moduleId.length !== 24)
     return next(Errors.Module.moduleIdInvalid);
 
-
-  if (minTeamSize > maxTeamSize) return next(Errors.Module.teamSizeMismatch);
-
-  // if (
-  //   typeof maxTeamSize !== "number" ||
-  //   typeof minTeamSize !== "number" ||
-  //   typeof name !== "string" ||
-  //   typeof venue !== "string" ||
-  //   typeof posterImage !== "string"
-  // )
-  //   return next(Errors.Module.invalidAttribute);
+  if (parsedMinTeamSize > parsedMaxTeamSize) return next(Errors.Module.teamSizeMismatch);
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
@@ -88,8 +87,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       description,
       posterImage,
       thirdPartyURL,
-      maxTeamSize,
-      minTeamSize,
+      maxTeamSize: parsedMaxTeamSize,
+      minTeamSize: parsedMinTeamSize,
       name,
       prizeDescription,
       registrationEndTime: regEnd,
