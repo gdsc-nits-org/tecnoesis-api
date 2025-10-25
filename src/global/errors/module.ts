@@ -14,7 +14,7 @@ const extraQuestionsJSONInvalid = Utils.Response.Error(
 );
 
 const invalidAttribute = Utils.Response.Error(
-  "One or more required attributes invalid [description, posterImage, lat, lng, maxTeamSize, minTeamSize, moduleId, name, prizeDescription, registrationEndTime, registrationStartTime, stagesDescription, venue]",
+  "One or more required attributes invalid [description, posterImage, maxTeamSize, minTeamSize, moduleId, name, prizeDescription, registrationEndTime, registrationStartTime, stagesDescription, venue]",
   400
 );
 

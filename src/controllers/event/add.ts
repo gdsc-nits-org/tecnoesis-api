@@ -21,20 +21,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const posterImage = (req.file as Express.MulterS3.File).location;
 
-  if (
-    !(
-      posterImage &&
-      maxTeamSize &&
-      minTeamSize &&
-      moduleId &&
-      name &&
-      registrationEndTime &&
-      registrationStartTime &&
-      venue
-    )
-  )
-    return next(Errors.Module.invalidAttribute);
-
   if (!String(moduleId) || moduleId.length !== 24)
     return next(Errors.Module.moduleIdInvalid);
 
