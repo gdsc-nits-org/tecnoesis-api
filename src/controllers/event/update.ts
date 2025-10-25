@@ -1,5 +1,5 @@
 import * as Interfaces from "@interfaces";
-import { Event, Prisma } from "@prisma/client";
+import { Event } from "@prisma/client";
 import { prisma } from "@utils/prisma";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
