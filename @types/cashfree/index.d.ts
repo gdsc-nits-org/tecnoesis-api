@@ -1,4 +1,4 @@
-declare module '@cashfreepayments/cashfree-sdk' {
+declare module "@cashfreepayments/cashfree-sdk" {
   export interface VendorBankDetails {
     account_holder_name: string;
     account_number: string;

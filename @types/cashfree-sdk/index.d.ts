@@ -1,6 +1,6 @@
-import { Cashfree } from '@cashfreepayments/cashfree-sdk';
+import { Cashfree } from "@cashfreepayments/cashfree-sdk";
 
-declare module 'cashfree-pg' {
+declare module "cashfree-pg" {
   interface VendorBankDetails {
     account_holder_name: string;
     account_number: string;

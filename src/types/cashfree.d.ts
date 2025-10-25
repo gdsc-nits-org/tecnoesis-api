@@ -1,4 +1,4 @@
-declare module '@cashfreepayments/cashfree-sdk' {
+declare module "@cashfreepayments/cashfree-sdk" {
   namespace Cashfree {
     interface CreateOrderRequest {
       order_id: string;
