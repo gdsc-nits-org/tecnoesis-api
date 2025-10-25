@@ -20,14 +20,6 @@ function initializeMulter() {
         cb(null, Date.now().toString() + "_" + file.originalname);
       },
     }),
-    fileFilter: (_, file, cb) => {
-      const imgRE = /image\/[a-zA-Z0-9]*/;
-      if (imgRE.test(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error("File of large size or unknown type."));
-      }
-    },
   });
 }
 
