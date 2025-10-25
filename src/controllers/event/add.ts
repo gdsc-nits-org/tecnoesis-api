@@ -27,14 +27,14 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   if (minTeamSize > maxTeamSize) return next(Errors.Module.teamSizeMismatch);
 
-  if (
-    typeof maxTeamSize !== "number" ||
-    typeof minTeamSize !== "number" ||
-    typeof name !== "string" ||
-    typeof venue !== "string" ||
-    typeof posterImage !== "string"
-  )
-    return next(Errors.Module.invalidAttribute);
+  // if (
+  //   typeof maxTeamSize !== "number" ||
+  //   typeof minTeamSize !== "number" ||
+  //   typeof name !== "string" ||
+  //   typeof venue !== "string" ||
+  //   typeof posterImage !== "string"
+  // )
+  //   return next(Errors.Module.invalidAttribute);
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
