@@ -141,7 +141,7 @@ const isAdmin: Interfaces.Middleware.Async = async (req, _res, next) => {
     },
   });
 
-  if (admin && admin.firebaseId === process.env.ADMIN_ID!) {
+  if (admin && admin.email === process.env.ADMIN_ID!) {
     return next();
   } else {
     return next(Errors.Auth.adminAuthError);
@@ -208,7 +208,7 @@ const isOrganizerOrAdmin: Interfaces.Middleware.Async = async (
 
   if (
     (isAuthorizedUser &&
-      isAuthorizedUser.firebaseId === process.env.ADMIN_ID!) ||
+      isAuthorizedUser.email === process.env.ADMIN_ID!) ||
     isOrganizer
   ) {
     return next();
