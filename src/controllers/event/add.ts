@@ -17,7 +17,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     registrationStartTime,
     stagesDescription,
     venue,
-    extraQuestions,
   } = req.body as Event;
 
   const posterImage = (req.file as Express.MulterS3.File).location;
@@ -39,8 +38,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (!String(moduleId) || moduleId.length !== 24)
     return next(Errors.Module.moduleIdInvalid);
 
-  if (extraQuestions && !Array.isArray(extraQuestions))
-    return next(Errors.Module.extraQuestionsJSONInvalid);
 
   if (minTeamSize > maxTeamSize) return next(Errors.Module.teamSizeMismatch);
 
@@ -113,7 +110,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       registrationStartTime: regStart,
       stagesDescription,
       venue,
-      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
       module: {
         connect: { id: moduleId },
       },

@@ -17,7 +17,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     registrationStartTime,
     stagesDescription,
     venue,
-    extraQuestions,
   } = req.body as Event;
 
   const posterImage = (req.file as any)?.location;
@@ -69,9 +68,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const { organizers = [] }: { organizers: string[] } = req.body;
 
-  if (extraQuestions && !Array.isArray(extraQuestions)) {
-    return next(Errors.Module.invalidInput);
-  }
 
   if (
     (minTeamSize && typeof minTeamSize !== "number") ||
@@ -138,7 +134,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       moduleId,
-      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
       organizers: {
         connectOrCreate: connectOrCreateOrganiser,
         delete: deleteOrganiser,

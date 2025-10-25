@@ -119,8 +119,6 @@ model Event {
   registrationStartTime DateTime
   registrationEndTime   DateTime
 
-  extraQuestions Json[] @default([])
-
   moduleId String @db.ObjectId
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
