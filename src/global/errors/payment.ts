@@ -14,6 +14,7 @@ const registrationClosed = Utils.Response.Error(
   400
 );
 const teamNotFound = Utils.Response.Error("Team not found", 404);
+const invalidSignature = Utils.Response.Error("Invalid webhook signature", 400);
 
 export {
   invalidInput,
@@ -24,4 +25,5 @@ export {
   paymentMethodNotConfigured,
   registrationClosed,
   teamNotFound,
+  invalidSignature,
 };

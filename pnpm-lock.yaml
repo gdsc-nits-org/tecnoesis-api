@@ -20,6 +20,9 @@ importers:
       cashfree-pg:
         specifier: ^5.1.0
         version: 5.1.0
+      cashfree-sdk:
+        specifier: ^0.1.1
+        version: 0.1.1
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1074,6 +1077,9 @@ packages:
 
   cashfree-pg@5.1.0:
     resolution: {integrity: sha512-Nt5g8eeV3M3h+WSUUG3qWUN2V6l5BYMuJPIiyz1i8aHFRo17qd9iHQ/j73EbCx5iFh/0BlfPDPBfzvgNf9xBKQ==}
+
+  cashfree-sdk@0.1.1:
+    resolution: {integrity: sha512-Mr7oJObcDJR7tHeDvCyMeD2nsJhtik8P0I1hxZ+VbqtL+DtImirHKm/SsX8SikJuR4c+letYXgQfTeEbpEnoLw==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -4038,6 +4044,8 @@ snapshots:
       axios: 1.12.2
     transitivePeerDependencies:
       - debug
+
+  cashfree-sdk@0.1.1: {}
 
   chalk@4.1.2:
     dependencies:

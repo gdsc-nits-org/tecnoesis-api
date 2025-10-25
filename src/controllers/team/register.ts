@@ -42,7 +42,11 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       moduleId: true,
       isPaymentRequired: true,
       registrationFee: true,
-      vendorId: true,
+      accountHolderName: true,
+      accountNumber: true,
+      ifscCode: true,
+      bankName: true,
+      upiId: true,
     },
   });
 
@@ -93,7 +97,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
 
       /* eslint-disable camelcase */
       // Validate bank account details are present
-      if (!event.vendorId) {
+      if (!event.accountHolderName || !event.accountNumber || !event.ifscCode) {
         return next(Errors.Payment.paymentMethodNotConfigured);
       }
 
@@ -115,12 +119,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
           members: Array.from(members),
           extraInformation,
         }),
-        order_splits: [
-          {
-            vendor_id: event.vendorId,
-            percentage: 100,
-          },
-        ],
       });
       /* eslint-enable camelcase */
 
