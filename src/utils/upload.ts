@@ -1,8 +1,6 @@
 import multer from "multer";
 import multerS3 from "multer-s3";
-
 import { initializeAWS, s3 } from "@utils/aws";
-// import * as Constants from "@constants";
 
 let upload: multer.Multer;
 
@@ -13,20 +11,16 @@ function initializeMulter() {
       s3,
       cacheControl: "max-age=31536000",
       bucket: process.env.AWS_S3_BUCKET_NAME!,
-      acl: "public-read",
+      // acl: "public-read", // <-- THIS LINE IS REMOVED
       contentDisposition: "inline",
       contentType: multerS3.AUTO_CONTENT_TYPE,
       key: function (_, file, cb) {
         cb(null, Date.now().toString() + "_" + file.originalname);
       },
     }),
-    fileFilter: (_, file, cb) => {
-      const imgRE = /image\/[a-zA-Z0-9]*/;
-      if (imgRE.test(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error("File of large size or unknown type."));
-      }
+    // ADD THIS 'limits' OBJECT TO FIX THE 413 ERROR
+    limits: {
+      fileSize: 50 * 1024 * 1024, // Set to 50MB (or your desired limit)
     },
   });
 }

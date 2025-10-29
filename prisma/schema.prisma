@@ -119,18 +119,12 @@ model Event {
   // Payment related fields
   registrationFee   Float   @default(0)
   isPaymentRequired Boolean @default(false)
-  accountHolderName String?
-  accountNumber     String?
-  ifscCode          String?
-  bankName          String?
-  upiId             String?
+  paymentCollected  Float   @default(0) // Total payment collected after gateway charges
 
   organizers EventOrganiser[]
 
   registrationStartTime DateTime
   registrationEndTime   DateTime
-
-  extraQuestions Json[] @default([])
 
   moduleId String @db.ObjectId
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)

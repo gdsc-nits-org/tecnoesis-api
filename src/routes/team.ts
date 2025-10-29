@@ -11,7 +11,6 @@ router.post(
   "/event/:eventId/add",
   Middlewares.Auth.validateUser,
   Middlewares.Event.isEventValid,
-  Middlewares.Auth.getAdmin,
   Controllers.Team.registerTeam
 );
 
@@ -32,7 +31,6 @@ router.get(
 router.patch(
   "/:teamId/respond",
   Middlewares.Auth.validateUser,
-  Middlewares.Auth.getAdmin,
   Controllers.Team.teamRegistrationResponse
 );
 

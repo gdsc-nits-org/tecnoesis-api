@@ -1,5 +1,5 @@
 import * as Interfaces from "@interfaces";
-import { Event, Prisma } from "@prisma/client";
+import { Event } from "@prisma/client";
 import { prisma } from "@utils/prisma";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
@@ -17,7 +17,8 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     registrationStartTime,
     stagesDescription,
     venue,
-    extraQuestions,
+    registrationFee,
+    isPaymentRequired,
   } = req.body as Event;
 
   const posterImage = (req.file as any)?.location;
@@ -69,10 +70,6 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
 
   const { organizers = [] }: { organizers: string[] } = req.body;
 
-  if (extraQuestions && !Array.isArray(extraQuestions)) {
-    return next(Errors.Module.invalidInput);
-  }
-
   if (
     (minTeamSize && typeof minTeamSize !== "number") ||
     (maxTeamSize && typeof maxTeamSize !== "number") ||
@@ -80,9 +77,18 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     (prizeDescription && typeof prizeDescription !== "string") ||
     (stagesDescription && typeof stagesDescription !== "string") ||
     (venue && typeof venue !== "string") ||
-    (posterImage && typeof posterImage !== "string")
+    (posterImage && typeof posterImage !== "string") ||
+    (registrationFee && typeof registrationFee !== "number") ||
+    (isPaymentRequired !== undefined && typeof isPaymentRequired !== "boolean")
   )
     return next(Errors.Module.invalidInput);
+
+  if (registrationFee !== undefined) {
+    const parsedRegistrationFee = parseFloat(String(registrationFee));
+    if (isNaN(parsedRegistrationFee) || parsedRegistrationFee < 0) {
+      return next(Errors.Module.invalidInput);
+    }
+  }
 
   if (
     (typeof name === "string" && !name.length) ||
@@ -138,7 +144,8 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       moduleId,
-      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
+      registrationFee,
+      isPaymentRequired,
       organizers: {
         connectOrCreate: connectOrCreateOrganiser,
         delete: deleteOrganiser,

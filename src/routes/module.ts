@@ -2,7 +2,6 @@ import { Router } from "express";
 import * as Controllers from "@controllers";
 import * as Middlewares from "@middlewares";
 import { upload } from "@utils/upload";
-import { uploadErrors } from "@middlewares/upload";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -13,7 +12,6 @@ router.post(
     { name: "iconImage", maxCount: 1 },
     { name: "coverImage", maxCount: 1 },
   ]),
-  uploadErrors,
   Controllers.Module.createModule
 );
 
@@ -34,7 +32,6 @@ router.patch(
     { name: "iconImage", maxCount: 1 },
     { name: "coverImage", maxCount: 1 },
   ]),
-  uploadErrors,
   Controllers.Module.updateModule
 );
 

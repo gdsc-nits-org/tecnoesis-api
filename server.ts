@@ -30,8 +30,8 @@ app
   )
   .use(helmet())
   .use(morgan(process.env.NODE_ENV === "development" ? "dev" : "short"))
-  .use(express.json())
-  .use(express.urlencoded({ extended: true }));
+  .use(express.json({ limit: "100mb" }))
+  .use(express.urlencoded({ extended: true, limit: "100mb" }));
 
 //----------------------- DOCS ------------------------------
 

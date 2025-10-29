@@ -1,5 +1,5 @@
 import { prisma } from "@utils/prisma";
-import { cashfree, Payouts } from "@utils/cashfree";
+import { cashfree } from "@utils/cashfree";
 import * as Interfaces from "@interfaces";
 import * as Errors from "@errors";
 import { Prisma, RegistrationStatus, TeamMemberRole } from "@prisma/client";
@@ -91,31 +91,20 @@ const notify: Interfaces.Controller.Async = async (req, res, next) => {
       },
     });
 
-    // Initiate Payout
-    const transferId = `payout_${data.order.order_id}`;
-    const amount = transaction.amount;
+    // Calculate net amount after Cashfree charges (typically 2% + GST)
+    // Cashfree charges approximately 2% + 18% GST = 2.36% total
+    const gatewayCharges = transaction.amount * 0.0236;
+    const netAmount = transaction.amount - gatewayCharges;
 
-    if (transaction.event.upiId) {
-      await Payouts.Transfers.RequestTransfer({
-        transferId,
-        amount,
-        transferMode: "upi",
-        transferDetails: {
-          vpa: transaction.event.upiId,
+    // Update event's collected payment amount
+    await prisma.event.update({
+      where: { id: transaction.eventId },
+      data: {
+        paymentCollected: {
+          increment: netAmount,
         },
-      });
-    } else {
-      await Payouts.Transfers.RequestTransfer({
-        transferId,
-        amount,
-        transferMode: "banktransfer",
-        transferDetails: {
-          bankAccount: transaction.event.accountNumber!,
-          ifsc: transaction.event.ifscCode!,
-          name: transaction.event.accountHolderName!,
-        },
-      });
-    }
+      },
+    });
 
     res.status(200).send("OK");
   } catch (err) {

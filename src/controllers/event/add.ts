@@ -1,5 +1,5 @@
 import * as Interfaces from "@interfaces";
-import { Event, Prisma } from "@prisma/client";
+import { Event } from "@prisma/client";
 import { prisma } from "@utils/prisma";
 import * as Errors from "@errors";
 import * as Utils from "@utils";
@@ -17,41 +17,26 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     registrationStartTime,
     stagesDescription,
     venue,
-    extraQuestions,
+    registrationFee,
+    isPaymentRequired,
   } = req.body as Event;
 
   const posterImage = (req.file as Express.MulterS3.File).location;
 
-  if (
-    !(
-      posterImage &&
-      maxTeamSize &&
-      minTeamSize &&
-      moduleId &&
-      name &&
-      registrationEndTime &&
-      registrationStartTime &&
-      venue
-    )
-  )
+  // Parse team sizes to integers
+  const parsedMaxTeamSize = parseInt(String(maxTeamSize), 10);
+  const parsedMinTeamSize = parseInt(String(minTeamSize), 10);
+
+  // Validate parsed integers
+  if (isNaN(parsedMaxTeamSize) || isNaN(parsedMinTeamSize)) {
     return next(Errors.Module.invalidAttribute);
+  }
 
   if (!String(moduleId) || moduleId.length !== 24)
     return next(Errors.Module.moduleIdInvalid);
 
-  if (extraQuestions && !Array.isArray(extraQuestions))
-    return next(Errors.Module.extraQuestionsJSONInvalid);
-
-  if (minTeamSize > maxTeamSize) return next(Errors.Module.teamSizeMismatch);
-
-  if (
-    typeof maxTeamSize !== "number" ||
-    typeof minTeamSize !== "number" ||
-    typeof name !== "string" ||
-    typeof venue !== "string" ||
-    typeof posterImage !== "string"
-  )
-    return next(Errors.Module.invalidAttribute);
+  if (parsedMinTeamSize > parsedMaxTeamSize)
+    return next(Errors.Module.teamSizeMismatch);
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
@@ -100,20 +85,31 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     connectOrganiser = await Utils.Event.connectId(organizers);
   }
 
+  // Parse and validate payment fields
+  const parsedRegistrationFee = registrationFee
+    ? parseFloat(String(registrationFee))
+    : 0;
+  const parsedIsPaymentRequired = Boolean(isPaymentRequired);
+
+  if (isNaN(parsedRegistrationFee) || parsedRegistrationFee < 0) {
+    return next(Errors.Module.invalidAttribute);
+  }
+
   const event = await prisma.event.create({
     data: {
       description,
       posterImage,
       thirdPartyURL,
-      maxTeamSize,
-      minTeamSize,
+      maxTeamSize: parsedMaxTeamSize,
+      minTeamSize: parsedMinTeamSize,
       name,
       prizeDescription,
       registrationEndTime: regEnd,
       registrationStartTime: regStart,
       stagesDescription,
       venue,
-      extraQuestions: extraQuestions as Prisma.InputJsonValue[],
+      registrationFee: parsedRegistrationFee,
+      isPaymentRequired: parsedIsPaymentRequired,
       module: {
         connect: { id: moduleId },
       },

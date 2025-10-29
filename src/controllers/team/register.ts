@@ -42,11 +42,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       moduleId: true,
       isPaymentRequired: true,
       registrationFee: true,
-      accountHolderName: true,
-      accountNumber: true,
-      ifscCode: true,
-      bankName: true,
-      upiId: true,
     },
   });
 
@@ -96,11 +91,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       const orderAmount = event.registrationFee;
 
       /* eslint-disable camelcase */
-      // Validate bank account details are present
-      if (!event.accountHolderName || !event.accountNumber || !event.ifscCode) {
-        return next(Errors.Payment.paymentMethodNotConfigured);
-      }
-
       const orderResponse = await cashfree.PGCreateOrder({
         order_id: orderId,
         order_amount: orderAmount,

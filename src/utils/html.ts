@@ -169,7 +169,7 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
   <tr>
     <td style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1729262433/tecnoesis_lehynb.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
+      <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1761749013/560654850_784194004327279_2095242099131874424_n_pnmhmt.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -459,7 +459,7 @@ const createRegisterCreationHTML = ({
     <tr>
       <td style="padding-right: 0px;padding-left: 0px;" align="center">
         
-        <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1729262433/tecnoesis_lehynb.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
+        <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1761749013/560654850_784194004327279_2095242099131874424_n_pnmhmt.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
         
       </td>
     </tr>
@@ -751,7 +751,7 @@ const sucessfullyRegisteredHTML = ({
     <tr>
       <td style="padding-right: 0px;padding-left: 0px;" align="center">
         
-        <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1729262433/tecnoesis_lehynb.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
+        <img align="center" border="0" src="https://res.cloudinary.com/dgnlmdkyq/image/upload/v1761749013/560654850_784194004327279_2095242099131874424_n_pnmhmt.webp" alt="Hero Image" title="Hero Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 77%;max-width: 500.5px;" width="500.5" class="v-src-width v-src-max-width"/>
         
       </td>
     </tr>
