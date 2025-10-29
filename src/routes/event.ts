@@ -3,7 +3,6 @@ import * as Controllers from "@controllers";
 import * as Middlewares from "@middlewares";
 import { upload } from "@utils/upload";
 
-
 const router: Router = Router({ mergeParams: true });
 
 router.post(
@@ -31,7 +30,7 @@ router.patch(
 
 router.delete(
   "/:eventId/",
-  Middlewares.Auth.isAdmin,
+  Middlewares.Auth.isOrganizerOrAdmin,
   Controllers.Event.deleteEvent
 );
 

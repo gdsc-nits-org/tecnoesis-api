@@ -1,5 +1,6 @@
 import { prisma } from "@utils/prisma";
 import { Prisma, RegistrationStatus, TeamMemberRole } from "@prisma/client";
+import { cashfree } from "@utils/cashfree";
 
 import * as Interfaces from "@interfaces";
 import * as Success from "@success";
@@ -39,6 +40,8 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       registrationStartTime: true,
       registrationEndTime: true,
       moduleId: true,
+      isPaymentRequired: true,
+      registrationFee: true,
     },
   });
 
@@ -77,6 +80,70 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       return next(Errors.Team.teamSizeNotAllowed);
     }
 
+    // Check if payment is required
+    if (event.isPaymentRequired) {
+      if (!event.registrationFee || event.registrationFee <= 0) {
+        return next(Errors.Payment.paymentMethodNotConfigured);
+      }
+
+      // Create order in Cashfree
+      const orderId = `${eventId}_${req.user!.id}_${Date.now()}`;
+      const orderAmount = event.registrationFee;
+
+      /* eslint-disable camelcase */
+      const orderResponse = await cashfree.PGCreateOrder({
+        order_id: orderId,
+        order_amount: orderAmount,
+        order_currency: "INR",
+        customer_details: {
+          customer_id: req.user!.id,
+          customer_name: `${req.user!.firstName} ${req.user!.lastName}`,
+          customer_email: req.user!.email,
+          customer_phone: req.user!.phoneNumber,
+        },
+        order_meta: {
+          return_url: `${process.env.FRONTEND_URL}/payment/verify?orderId=${orderId}`,
+          notify_url: `${process.env.API_URL}/payment/notify`,
+        },
+        order_note: JSON.stringify({
+          members: Array.from(members),
+          extraInformation,
+        }),
+      });
+      /* eslint-enable camelcase */
+
+      // Store payment details and pending team registration
+      const payment = await prisma.paymentTransaction.create({
+        data: {
+          orderId: orderId,
+          amount: orderAmount,
+          status: "PENDING",
+          event: { connect: { id: eventId } },
+          payer: { connect: { id: req.user!.id } },
+          paymentData: JSON.stringify({
+            registrationData: {
+              teamName: name,
+              members: Array.from(members),
+              extraInformation,
+            },
+          }),
+        },
+      });
+
+      // Return payment link to complete registration
+      return res.json({
+        status: 200,
+        message: "Payment required to complete registration",
+        data: {
+          paymentLink: orderResponse.data.payment_session_id,
+          orderId: payment.orderId,
+          amount: orderAmount,
+          eventName: event.name,
+        },
+      });
+    }
+
+    // If no payment required, proceed with normal registration
     // Check team name
     const teamTaken = await prisma.team.count({
       where: {

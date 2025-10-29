@@ -17,6 +17,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     registrationStartTime,
     stagesDescription,
     venue,
+    registrationFee,
+    isPaymentRequired,
   } = req.body as Event;
 
   const posterImage = (req.file as Express.MulterS3.File).location;
@@ -33,7 +35,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   if (!String(moduleId) || moduleId.length !== 24)
     return next(Errors.Module.moduleIdInvalid);
 
-  if (parsedMinTeamSize > parsedMaxTeamSize) return next(Errors.Module.teamSizeMismatch);
+  if (parsedMinTeamSize > parsedMaxTeamSize)
+    return next(Errors.Module.teamSizeMismatch);
 
   const regStart = new Date(registrationStartTime);
   const regEnd = new Date(registrationEndTime);
@@ -82,6 +85,16 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     connectOrganiser = await Utils.Event.connectId(organizers);
   }
 
+  // Parse and validate payment fields
+  const parsedRegistrationFee = registrationFee
+    ? parseFloat(String(registrationFee))
+    : 0;
+  const parsedIsPaymentRequired = Boolean(isPaymentRequired);
+
+  if (isNaN(parsedRegistrationFee) || parsedRegistrationFee < 0) {
+    return next(Errors.Module.invalidAttribute);
+  }
+
   const event = await prisma.event.create({
     data: {
       description,
@@ -95,6 +108,8 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       registrationStartTime: regStart,
       stagesDescription,
       venue,
+      registrationFee: parsedRegistrationFee,
+      isPaymentRequired: parsedIsPaymentRequired,
       module: {
         connect: { id: moduleId },
       },

@@ -207,8 +207,7 @@ const isOrganizerOrAdmin: Interfaces.Middleware.Async = async (
   });
 
   if (
-    (isAuthorizedUser &&
-      isAuthorizedUser.email === process.env.ADMIN_ID!) ||
+    (isAuthorizedUser && isAuthorizedUser.email === process.env.ADMIN_ID!) ||
     isOrganizer
   ) {
     return next();
