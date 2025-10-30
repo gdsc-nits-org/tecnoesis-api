@@ -7,17 +7,5 @@ import * as Event from "./event";
 import * as Statics from "./statics";
 import * as Spark from "./spark";
 import * as Merch from "./merch";
-import * as Payment from "./payment";
 
-export {
-  System,
-  User,
-  Statics,
-  Team,
-  Module,
-  Auth,
-  Event,
-  Spark,
-  Merch,
-  Payment,
-};
+export { System, User, Statics, Team, Module, Auth, Event, Spark, Merch };
