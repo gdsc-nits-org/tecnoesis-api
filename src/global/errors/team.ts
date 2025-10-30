@@ -41,6 +41,8 @@ const invalidTeamId = Utils.Response.Error("Invalid Team ID", 401);
 
 const timeNotRight = Utils.Response.Error("Can not register now.", 401);
 
+const invalidInput = Utils.Response.Error("Invalid input provided.", 400);
+
 export {
   userNotPartOfTeam,
   userAlreadyResponded,
@@ -53,4 +55,5 @@ export {
   memberDuplicates,
   invalidTeamId,
   timeNotRight,
+  invalidInput,
 };

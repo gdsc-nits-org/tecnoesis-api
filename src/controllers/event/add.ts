@@ -18,10 +18,15 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
     stagesDescription,
     venue,
     registrationFee,
-    isPaymentRequired,
   } = req.body as Event;
 
-  const posterImage = (req.file as Express.MulterS3.File).location;
+  const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+  const posterImage = files?.posterImage?.[0]?.location;
+  const upiQrCode = files?.upiQrCode?.[0]?.location;
+
+  if (!posterImage) {
+    return next(Errors.Module.invalidAttribute);
+  }
 
   // Parse team sizes to integers
   const parsedMaxTeamSize = parseInt(String(maxTeamSize), 10);
@@ -89,7 +94,6 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
   const parsedRegistrationFee = registrationFee
     ? parseFloat(String(registrationFee))
     : 0;
-  const parsedIsPaymentRequired = Boolean(isPaymentRequired);
 
   if (isNaN(parsedRegistrationFee) || parsedRegistrationFee < 0) {
     return next(Errors.Module.invalidAttribute);
@@ -109,7 +113,7 @@ const createEvent: Interfaces.Controller.Async = async (req, res, next) => {
       stagesDescription,
       venue,
       registrationFee: parsedRegistrationFee,
-      isPaymentRequired: parsedIsPaymentRequired,
+      upiQrCode,
       module: {
         connect: { id: moduleId },
       },

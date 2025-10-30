@@ -7,7 +7,6 @@ import Team from "./team";
 import Statics from "./statics";
 import Spark from "./spark";
 import Merch from "./merch";
-import PaymentRouter from "./payment";
 
 export {
   Auth as Auth,
@@ -19,5 +18,4 @@ export {
   Statics as Statics,
   Spark as Spark,
   Merch as Merch,
-  PaymentRouter as Payment,
 };

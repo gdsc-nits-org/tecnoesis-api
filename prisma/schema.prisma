@@ -26,7 +26,6 @@ model User {
   hasOpted Boolean @default(false)
 
   teamsRegistered TeamRegistration[]
-  payments        PaymentTransaction[] @relation("PayerRelation")
 
   organizes EventOrganiser[]
 
@@ -52,10 +51,13 @@ model Team {
 
   registrationStatus RegistrationStatus
 
-  members  TeamRegistration[]
-  payments PaymentTransaction[] @relation("TeamPayments")
+  members TeamRegistration[]
 
   extraInformation Json[]
+
+  // Payment verification fields
+  transactionId     String?
+  verificationPhoto String? // URL to uploaded payment verification photo
 
   eventId String @db.ObjectId
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -117,9 +119,8 @@ model Event {
   venue String
 
   // Payment related fields
-  registrationFee   Float   @default(0)
-  isPaymentRequired Boolean @default(false)
-  paymentCollected  Float   @default(0) // Total payment collected after gateway charges
+  registrationFee Float   @default(0)
+  upiQrCode       String? // UPI QR code for payment
 
   organizers EventOrganiser[]
 
@@ -129,8 +130,7 @@ model Event {
   moduleId String @db.ObjectId
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
-  teams    Team[]
-  payments PaymentTransaction[]
+  teams Team[]
 }
 
 model Statics {
@@ -186,30 +186,4 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   REFUNDED
-}
-
-model PaymentTransaction {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  amount   Float
-  currency String @default("INR")
-
-  orderId   String  @unique // Cashfree order ID
-  paymentId String? @unique // Cashfree payment ID after successful payment
-
-  status PaymentStatus @default(PENDING)
-
-  eventId String @db.ObjectId
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  teamId String? @db.ObjectId
-  team   Team?   @relation("TeamPayments", fields: [teamId], references: [id], onDelete: Cascade)
-
-  payerId String @db.ObjectId // The user who made the payment (team leader)
-  payer   User   @relation("PayerRelation", fields: [payerId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  paymentData Json? // Store additional payment details
 }

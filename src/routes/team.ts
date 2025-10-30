@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import * as Controllers from "@controllers";
 import * as Middlewares from "@middlewares";
+import { upload } from "@utils/upload";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -11,6 +12,7 @@ router.post(
   "/event/:eventId/add",
   Middlewares.Auth.validateUser,
   Middlewares.Event.isEventValid,
+  upload.single("verificationPhoto"), // Payment verification photo upload
   Controllers.Team.registerTeam
 );
 

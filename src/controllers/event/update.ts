@@ -18,10 +18,11 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     stagesDescription,
     venue,
     registrationFee,
-    isPaymentRequired,
   } = req.body as Event;
 
-  const posterImage = (req.file as any)?.location;
+  const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+  const posterImage = files?.posterImage?.[0]?.location;
+  const upiQrCode = files?.upiQrCode?.[0]?.location;
 
   const { eventId: EID } = req.params;
   const eventId = String(EID);
@@ -78,8 +79,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
     (stagesDescription && typeof stagesDescription !== "string") ||
     (venue && typeof venue !== "string") ||
     (posterImage && typeof posterImage !== "string") ||
-    (registrationFee && typeof registrationFee !== "number") ||
-    (isPaymentRequired !== undefined && typeof isPaymentRequired !== "boolean")
+    (registrationFee && typeof registrationFee !== "number")
   )
     return next(Errors.Module.invalidInput);
 
@@ -145,7 +145,7 @@ const updateEvent: Interfaces.Controller.Async = async (req, res, next) => {
       venue,
       moduleId,
       registrationFee,
-      isPaymentRequired,
+      upiQrCode,
       organizers: {
         connectOrCreate: connectOrCreateOrganiser,
         delete: deleteOrganiser,
