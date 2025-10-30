@@ -1,20 +1,70 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
 import * as Interfaces from "@interfaces";
 
-/**
- * @description Configuration for fallback email accounts
- */
-const emailConfigs = [
-  {
-    user: process.env.MAIL_ID,
-    pass: process.env.MAIL_PASSWORD,
-  },
-  {
-    user: process.env.MAIL_ID_2,
-    pass: process.env.MAIL_PASSWORD_2,
-  },
-];
+class EmailService {
+  private primaryTransporter: nodemailer.Transporter;
+  private fallbackTransporter: nodemailer.Transporter;
+
+  constructor() {
+    // Primary Gmail SMTP
+    this.primaryTransporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_ID, // Primary Gmail address
+        pass: process.env.MAIL_PASSWORD, // App Password for the primary account
+      },
+      tls: {
+        rejectUnauthorized: false, // Allow self-signed certificates
+      },
+    });
+
+    // Fallback Gmail SMTP
+    this.fallbackTransporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_ID_2, // Fallback Gmail address
+        pass: process.env.MAIL_PASSWORD_2, // App Password for the fallback account
+      },
+      tls: {
+        rejectUnauthorized: false, // Allow self-signed certificates
+      },
+    });
+  }
+
+  /**
+   * Sends an email with fallback to another Gmail account if the first one fails.
+   * @param {nodemailer.SendMailOptions} options - Email options
+   */
+  async sendEmail(options: nodemailer.SendMailOptions): Promise<void> {
+    try {
+      await this.primaryTransporter.sendMail(options);
+      console.log("Email sent to", options.to);
+    } catch (primaryError) {
+      console.error(
+        "Failed to send email with Primary Gmail SMTP:",
+        primaryError
+      );
+      try {
+        await this.fallbackTransporter.sendMail(options);
+        console.log(
+          "Email sent successfully with Fallback Gmail SMTP. To:",
+          options.to
+        );
+      } catch (fallbackError) {
+        console.error(
+          "Failed to send email with Fallback Gmail SMTP:",
+          fallbackError
+        );
+        throw new Error("Both primary and fallback email sending failed.");
+      }
+    }
+  }
+}
+
+const emailService = new EmailService();
 
 /**
  * @description Sends an email with the
@@ -22,58 +72,14 @@ const emailConfigs = [
  * alternative email accounts if one fails.
  */
 const sendMail: Interfaces.Mail.MailOptions = async (email, html, subject) => {
-  let lastError: Error | null = null;
+  const options: nodemailer.SendMailOptions = {
+    to: email,
+    from: `"${process.env.NAME}" <${process.env.MAIL_ID}>`,
+    subject,
+    html,
+  };
 
-  // Try each email configuration in order
-  for (let i = 0; i < emailConfigs.length; i++) {
-    const config = emailConfigs[i];
-
-    // Skip if credentials are not configured
-    if (!config.user || !config.pass) {
-      console.warn(`Email config ${i + 1} is not configured, skipping...`);
-      continue;
-    }
-
-    try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: config.user,
-          pass: config.pass,
-        },
-      });
-
-      await transporter.sendMail({
-        to: email,
-        from: `"${process.env.NAME}" <${config.user}>`,
-        subject,
-        html,
-      });
-
-      // If successful, log and return
-      if (i > 0) {
-        console.log(`Email sent successfully using fallback account ${i + 1}`);
-      }
-      return;
-    } catch (error) {
-      lastError = error as Error;
-      console.error(
-        `Failed to send email using account ${i + 1}: ${lastError.message}`
-      );
-
-      // If this is not the last config, continue to next fallback
-      if (i < emailConfigs.length - 1) {
-        console.log(`Attempting fallback email account ${i + 2}...`);
-      }
-    }
-  }
-
-  // If all attempts failed, throw the last error
-  throw new Error(
-    `Failed to send email after trying all ${emailConfigs.length} accounts. Last error: ${lastError?.message}`
-  );
+  await emailService.sendEmail(options);
 };
 
 export { sendMail };

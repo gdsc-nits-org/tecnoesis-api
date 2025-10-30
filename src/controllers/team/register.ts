@@ -13,15 +13,15 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
   if (!eventId || eventId.length !== 24)
     return next(Errors.Module.invalidInput);
 
-  const {
-    members: memberArray,
-    extraInformation,
-    transactionId,
-  } = req.body as Interfaces.Team.RegisterTeamBody;
+  const { extraInformation, transactionId } =
+    req.body as Interfaces.Team.RegisterTeamBody;
 
   let { name } = req.body as Interfaces.Team.RegisterTeamBody;
 
-  name = name.trim();
+  // Handle optional name field
+  if (name && typeof name === "string") {
+    name = name.trim();
+  }
 
   // Get verification photo from uploaded file (if provided)
   const verificationPhoto = (req.file as Express.MulterS3.File)?.location;
@@ -31,6 +31,10 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
     return next(Errors.Team.invalidInput);
   }
 
+  // Ensure memberArray is initialized as an array of strings
+  const memberArray: string[] = Array.isArray(req.body.members)
+    ? req.body.members
+    : [];
   memberArray.push(req.user!.username);
 
   const members = new Set(memberArray);
@@ -89,25 +93,27 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       return next(Errors.Team.teamSizeNotAllowed);
     }
 
-    // Check if team name is taken
-    const teamTaken = await prisma.team.count({
-      where: {
-        eventId,
-        teamName: name,
-        OR: [
-          {
-            registrationStatus: RegistrationStatus.REGISTERED,
-          },
-          {
-            registrationStatus: RegistrationStatus.PENDING,
-          },
-        ],
-      },
-      take: 1,
-    });
+    // Skip team name validation for solo events
+    if (event!.maxTeamSize > 1 && name) {
+      const teamTaken = await prisma.team.count({
+        where: {
+          eventId,
+          teamName: name,
+          OR: [
+            {
+              registrationStatus: RegistrationStatus.REGISTERED,
+            },
+            {
+              registrationStatus: RegistrationStatus.PENDING,
+            },
+          ],
+        },
+        take: 1,
+      });
 
-    if (teamTaken !== 0) {
-      return next(Errors.Team.teamAlreadyExists);
+      if (teamTaken !== 0) {
+        return next(Errors.Team.teamAlreadyExists);
+      }
     }
 
     // Check if users exist and if registered in another team.
@@ -163,6 +169,13 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       });
     });
 
+    // Correct handling of extraInformation
+    let parsedExtraInformation: Prisma.InputJsonValue[] = Array.isArray(
+      extraInformation
+    )
+      ? extraInformation
+      : [];
+
     await prisma.team.create({
       data: {
         teamName: name,
@@ -178,7 +191,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
         members: {
           create: memberRegistration,
         },
-        extraInformation: extraInformation as Prisma.InputJsonValue[],
+        extraInformation: parsedExtraInformation,
         transactionId: transactionId,
         verificationPhoto: verificationPhoto,
       },
