@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: "22.x"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -72,14 +72,14 @@ jobs:
             --description "Deployment from commit ${{ github.sha }}" \
             --query 'deploymentId' \
             --output text)
-          
+
           echo "Deployment ID: $DEPLOYMENT_ID"
           echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
 
       - name: Wait for deployment completion
         run: |
           echo "Waiting for deployment ${{ env.DEPLOYMENT_ID }} to complete..."
-          
+
           aws deploy wait deployment-successful \
             --deployment-id ${{ env.DEPLOYMENT_ID }} \
             && echo "Deployment completed successfully!" \

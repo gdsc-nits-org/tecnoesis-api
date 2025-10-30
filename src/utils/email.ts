@@ -14,10 +14,6 @@ const emailConfigs = [
     user: process.env.MAIL_ID_2,
     pass: process.env.MAIL_PASSWORD_2,
   },
-  {
-    user: process.env.MAIL_ID_3,
-    pass: process.env.MAIL_PASSWORD_3,
-  },
 ];
 
 /**
