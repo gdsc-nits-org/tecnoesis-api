@@ -5,7 +5,7 @@ import * as Success from "@success";
 const optIn: Interfaces.Controller.Async = async (req, res, _next) => {
   await prisma.user.update({
     where: { id: req.user!.id },
-    data: { hasOpted: true },
+    data: { hasOpted: false },
   });
 
   return res.json(Success.Merch.optedIn());

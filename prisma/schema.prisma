@@ -23,7 +23,7 @@ model User {
   hostelName     String?
   imageUrl       String
 
-  hasOpted Boolean @default(false)
+  hasOpted Boolean @default(true)
 
   teamsRegistered TeamRegistration[]
 
