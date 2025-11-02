@@ -32,16 +32,23 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
   }
 
   // Ensure memberArray is initialized as an array of strings
-  const memberArray: string[] = Array.isArray(req.body.members)
-    ? req.body.members
-    : [];
+  let memberArray: string[] = [];
+
+  if (Array.isArray(req.body.members)) {
+    memberArray = req.body.members;
+  } else if (typeof req.body.members === "string" && req.body.members.trim()) {
+    memberArray = [req.body.members.trim()];
+  } else if (req.body.members) {
+    // Handle other cases like comma-separated strings
+    memberArray = String(req.body.members)
+      .split(",")
+      .map((m) => m.trim())
+      .filter((m) => m);
+  }
+
   memberArray.push(req.user!.username);
 
   const members = new Set(memberArray);
-  // Any duplicate members, including leader,
-  // if duplicate is present, gets removed.
-
-  // Get event
   const event = await prisma.event.findFirst({
     where: {
       id: eventId,
@@ -85,7 +92,6 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
       return next(Errors.Event.eventDoesntExist);
     }
 
-    // Check member limit
     if (
       event!.minTeamSize > members.size ||
       event!.maxTeamSize < members.size
