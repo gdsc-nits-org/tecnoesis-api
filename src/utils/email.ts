@@ -7,6 +7,7 @@ import * as Interfaces from "@interfaces";
 class EmailService {
   private primaryTransporter: nodemailer.Transporter;
   private fallbackTransporter: nodemailer.Transporter;
+  private fallback2Transporter: nodemailer.Transporter;
 
   constructor() {
     // Primary Gmail SMTP
@@ -27,6 +28,18 @@ class EmailService {
       auth: {
         user: process.env.MAIL_ID_2, // Fallback Gmail address
         pass: process.env.MAIL_PASSWORD_2, // App Password for the fallback account
+      },
+      tls: {
+        rejectUnauthorized: false, // Allow self-signed certificates
+      },
+    });
+
+    // Second Fallback Gmail SMTP
+    this.fallback2Transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_ID_3, // Second Fallback Gmail address
+        pass: process.env.MAIL_PASSWORD_3, // App Password for the second fallback account
       },
       tls: {
         rejectUnauthorized: false, // Allow self-signed certificates
@@ -58,7 +71,19 @@ class EmailService {
           "Failed to send email with Fallback Gmail SMTP:",
           fallbackError
         );
-        throw new Error("Both primary and fallback email sending failed.");
+        try {
+          await this.fallback2Transporter.sendMail(options);
+          console.log(
+            "Email sent successfully with Second Fallback Gmail SMTP. To:",
+            options.to
+          );
+        } catch (fallback2Error) {
+          console.error(
+            "Failed to send email with Second Fallback Gmail SMTP:",
+            fallback2Error
+          );
+          throw new Error("All primary and fallback email sending failed.");
+        }
       }
     }
   }

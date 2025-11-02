@@ -47,7 +47,8 @@ model EventOrganiser {
 model Team {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  teamName String? // optional team name for solo participants
+  teamName     String? // optional team name for solo participants
+  codeforcesID String?
 
   registrationStatus RegistrationStatus
 

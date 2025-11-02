@@ -5,6 +5,7 @@ interface RegisterTeamBody {
   members: string[];
   extraInformation: object;
   transactionId?: string;
+  codeforcesId?: string;
 }
 
 interface RegistrationResponse {

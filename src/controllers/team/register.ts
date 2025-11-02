@@ -13,7 +13,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
   if (!eventId || eventId.length !== 24)
     return next(Errors.Module.invalidInput);
 
-  const { extraInformation, transactionId } =
+  const { extraInformation, transactionId, codeforcesId } =
     req.body as Interfaces.Team.RegisterTeamBody;
 
   let { name } = req.body as Interfaces.Team.RegisterTeamBody;
@@ -185,6 +185,7 @@ const registerTeam: Interfaces.Controller.Async = async (req, res, next) => {
     await prisma.team.create({
       data: {
         teamName: name,
+        ...(codeforcesId && { codeforcesID: codeforcesId }),
         registrationStatus:
           members.size === 1
             ? RegistrationStatus.REGISTERED
