@@ -86,6 +86,7 @@ const getAllTeamsOfEvent: Interfaces.Controller.Async = async (
     select: {
       teamName: true,
       id: true,
+      codeforcesID: true,
       members: {
         select: {
           user: {
