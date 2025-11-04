@@ -103,7 +103,7 @@ const signUp: Interfaces.Controller.Async = async (req, res, next) => {
     data: {
       email: process.env.NODE_ENV === "development" ? email : firebaseEmail!,
       collegeName: collegeName,
-      registrationId: registrationId,
+      ...(registrationId && { registrationId: registrationId }),
       firebaseId: uid,
       firstName: firstName,
       middleName: middleName ? middleName : "",
